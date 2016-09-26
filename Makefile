@@ -20,14 +20,17 @@ OBJ = $(SRC:.c=.o)
 
 LIB = ./libft/
 
-MLX = -lmlx -I/Library/Frameworks/OpenGL.framework/Headers -framework OpenGL -I/Library/Frameworks/SDL2.framework/Headers -framework SDL2 -framework AppKit
+GL = -I/Library/Frameworks/OpenGL.framework/Headers -framework OpenGL 
+GLFW = -framework Cocoa -framework CoreVideo -framework IOKit -framework GLUT -L./glfw-3.2.1/src -lglfw3
 
-CC = gcc -g -Wall -Werror -Wextra -Ofast 
+SDL2 = -lmlx -I/Library/Frameworks/OpenGL.framework/Headers -framework OpenGL -I/Library/Frameworks/SDL2.framework/Headers -framework SDL2 -framework AppKit
+
+CC = gcc -g  -Ofast
 
 all : Lib $(NAME) 
 
 $(NAME) : $(OBJ)
-	$(CC) -o $(NAME) $(OBJ) -L./libft/ -lft $(MLX)
+	$(CC) -o $(NAME) $(OBJ) -L./libft/ -lft $(GL) $(GLFW)
 
 Lib :
 	make -C $(LIB)
