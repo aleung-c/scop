@@ -73,7 +73,7 @@ void	scop(t_scop *sc)
 	};
 	
 	// -------------------------------------------------------------------------- //
-	//	VBO																		  //
+	//	VBO - Vertex buffer object												  //
 	// -------------------------------------------------------------------------- //
 	GLuint vbo = 0;
 	glGenBuffers (1, &vbo);
@@ -83,7 +83,7 @@ void	scop(t_scop *sc)
 
 
 	// -------------------------------------------------------------------------- //
-	//	VAO																		  //
+	//	VAO - Vertex Array object												  //
 	// -------------------------------------------------------------------------- //
 	GLuint vao = 0;
 
@@ -150,6 +150,7 @@ void	scop(t_scop *sc)
 	// -------------------------------------------------------------------------- //
 	while (!glfwWindowShouldClose(sc->window))
 	{
+
 		// wipe the drawing surface clear
 		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glUseProgram (shader_programme);
@@ -167,9 +168,16 @@ int		main(int argc, char **argv)
 {
 	t_scop		sc;
 
-	if (argc != 0 && argv)
+	if (argc == 2)
 	{
-		scop(&sc);
+		if (get_obj(&sc, argv[1]) == 0)
+		{
+			scop(&sc);
+		}
+	}
+	else
+	{
+		ft_putendl("Usage: ./scop [file.obj]");
 	}
 	return (0);
 }

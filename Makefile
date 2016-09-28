@@ -14,7 +14,7 @@ NAME = scop
 
 HEADER = includes/scop.h
 
-SRC = src/scop.c
+SRC = src/scop.c src/get_obj.c src/parse_obj.c
 
 OBJ = $(SRC:.c=.o)
 
@@ -25,7 +25,9 @@ GLFW = -framework Cocoa -framework CoreVideo -framework IOKit -framework GLUT -L
 
 SDL2 = -lmlx -I/Library/Frameworks/OpenGL.framework/Headers -framework OpenGL -I/Library/Frameworks/SDL2.framework/Headers -framework SDL2 -framework AppKit
 
-CC = gcc -g  -Ofast
+CC = gcc -g -O2
+#-march=native
+
 
 all : Lib $(NAME) 
 
