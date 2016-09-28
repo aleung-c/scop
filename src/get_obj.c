@@ -36,9 +36,9 @@ int get_obj(t_scop *sc, char *arg)
 	else
 	{
 		data_init(sc);
-		parse_pass1(sc, fd, arg);
-		allocate_variables(sc);
-		parse_pass2(sc, fd, arg);
+		parse_pass1(sc, fd, arg);	// get nb of lines / elements.
+		allocate_variables(sc);		// allocates required variables.
+		parse_pass2(sc, arg);	// fill allocated variables.
 	}
 	return (0);
 }
@@ -53,6 +53,7 @@ void		data_init(t_scop *sc)
 	sc->nb_obj = 0;
 	sc->nb_groups = 0;
 	sc->nb_materials = 0;
+	sc->itmp = 0;
 }
 
 /*
@@ -84,7 +85,7 @@ void		parse_pass1(t_scop *sc, int fd, char *arg)
 		{
 			line = get_nchar(&fd2, char_count + 1);
 			//ft_putstr(line);
-			parse_line_couting(sc, line);
+			parse_line_counting(sc, line);
 			free(line); // clean
 			line_number += 1;
 			char_count = 0;
@@ -131,8 +132,9 @@ void	allocate_variables(t_scop *sc)
 /*
 **	Pass 2 takes the values and put them in variables.
 */
-void		parse_pass2(t_scop *sc, int fd, char *arg)
+void		parse_pass2(t_scop *sc, char *arg)
 {
+	int							fd;
 	int							fd2;
 	int							ret;
 	int							line_number;
@@ -140,6 +142,7 @@ void		parse_pass2(t_scop *sc, int fd, char *arg)
 	char						cur_char;
 	int							char_count;
 
+	fd = open(arg, O_RDONLY);
 	fd2 = open(arg, O_RDONLY);
 	char_count = 0;
 	cur_char = 'a';

@@ -22,10 +22,9 @@ int		advance_till_char(char *line, int position)
 	return (i);
 }
 
-void	parse_line_couting(t_scop *sc, char *line)
+void	parse_line_counting(t_scop *sc, char *line)
 {
 	int i;
-
 
 	i = 0;
 	i = advance_till_char(line, 0);
@@ -70,8 +69,56 @@ void	parse_line_couting(t_scop *sc, char *line)
 	return ;
 }
 
+void	put_vertex_in_var(t_scop *sc, char *line, int position)
+{
+	int i = position;
+
+	while (line[i])
+	{
+		while (line[i] && (isspace(line[i]) == 1))
+			i++;
+		if (isdigit(line[i]) == 1 || line[i] == '-')
+		{
+			// CONTINUE HERE.
+			sc->obj_vertices[sc->itmp] = strtof(&(line[i]), NULL);
+			printf("val =  %f \n", sc->obj_vertices[sc->itmp]);
+			// CONTINUE HERE.
+			while (isdigit(line[i]) || line[i] == '.')
+				i++;
+			sleep(1);
+		}
+		else
+			i++;
+	}
+
+}
+
 void	parse_line_filling(t_scop *sc, char *line)
 {
+	int i;
+
+	i = 0;
+	i = advance_till_char(line, 0);
+
+	if (line[i] == '\0' || line[i] == '#')
+	{
+		return ;
+	}
+	else if (line[i] == 'v')
+	{
+		// fill vertex;
+		if (line[i + 1])
+		{
+			if (line[i + 1] == 't')
+				{}
+			else if (line[i + 1] == 'n')
+				{}
+			else if (line[i + 1] == 'p')
+				{}
+			else
+				put_vertex_in_var(sc, line, i);
+		}
+	}
 
 
 }

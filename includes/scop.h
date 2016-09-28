@@ -14,12 +14,13 @@
 # define SCOP_H
 
 # include "../libft/libft.h"
-# include <unistd.h> //
+//# include <unistd.h>
 # include <stdio.h> //
 # include <stdlib.h>
 # include "X.h"
 //# include <X11/Xlib.h>
 # include <mlx.h>
+# include <ctype.h>
 
 // Linking SDL2
 //# include <SDL2/SDL.h>
@@ -37,8 +38,8 @@
  # include <GLUT/glut.h>
 
 # else
-// #  include <GL/gl3.h>
-// #  include <GL/gl.h>
+ #  include <GL/gl3.h>
+ // #  include <GL/gl.h>
  # include <GL/glu.h>
  # include <GL/glew.h>
 # endif
@@ -72,6 +73,7 @@ typedef struct						s_scop
 	unsigned long int				nb_materials;
 
 	float							*obj_vertices;
+	int								itmp;
 
 	// events
 	int								escape_pressed;
@@ -88,9 +90,10 @@ int							get_obj(t_scop *sc, char *arg);
 void						data_init(t_scop *sc);
 
 void						parse_pass1(t_scop *sc, int fd, char *arg);
-void						parse_pass2(t_scop *sc, int fd, char *arg);
+void						parse_pass2(t_scop *sc, char *arg);
 
-void						parse_line_couting(t_scop *sc, char *line);
+void						parse_line_counting(t_scop *sc, char *line);
+void						parse_line_filling(t_scop *sc, char *line);
 
 void						allocate_variables(t_scop *sc);
 

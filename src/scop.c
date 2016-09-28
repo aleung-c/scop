@@ -48,6 +48,12 @@ int		initGLFW(t_scop *sc)
 	const GLubyte* version = glGetString (GL_VERSION); // version as a string
 	printf ("Renderer: %s\n", renderer);
 	printf ("OpenGL version supported %s\n", version);
+
+	#ifndef __APPLE__
+	glewExperimental = GL_TRUE;
+	glewInit();
+	#endif
+
 	return (0);
 }
 
@@ -133,7 +139,7 @@ void	scop(t_scop *sc)
 	glGetProgramiv(shader_programme, GL_LINK_STATUS, &isLinked);
 	if (isLinked == GL_FALSE)
 	{
-		printf("Error : Shader programme NOT linked\n");
+		printf("Error: Shader programme NOT linked\n");
 	} else
 	{
 		printf("Shader programme linked\n");
