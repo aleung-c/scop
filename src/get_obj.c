@@ -54,6 +54,7 @@ void		data_init(t_scop *sc)
 	sc->nb_groups = 0;
 	sc->nb_materials = 0;
 	sc->itmp = 0;
+	sc->faces_itmp = 0;
 }
 
 /*
@@ -84,11 +85,12 @@ void		parse_pass1(t_scop *sc, int fd, char *arg)
 		if (cur_char == '\n')
 		{
 			line = get_nchar(&fd2, char_count + 1);
-			//ft_putstr(line);
+			ft_putstr(line);
 			parse_line_counting(sc, line);
 			free(line); // clean
 			line_number += 1;
 			char_count = 0;
+			//sleep(1);
 		}
 	}
 	ft_putstr(KGRN "Object file datas:" KRESET);
@@ -124,9 +126,19 @@ void		parse_pass1(t_scop *sc, int fd, char *arg)
 	ft_putchar('\n');
 }
 
-void	allocate_variables(t_scop *sc)
+void		allocate_variables(t_scop *sc)
 {
-	sc->obj_vertices = (float *)malloc(sizeof(float) * sc->nb_vertices);
+	if (!(sc->obj_vertices = (float *)malloc(sizeof(float) * sc->nb_vertices)))
+	{
+		ft_putendl("vertices allocation failed.");
+		exit (-1);
+	}
+	if (!(sc->obj_faces = (float *)malloc(sizeof(float) * sc->nb_faces)))
+	{
+		ft_putendl("face vertices allocation failed.");
+		exit (-1);
+	}
+	ft_putendl("- All model variables allocated.");
 }
 
 /*
@@ -158,7 +170,8 @@ void		parse_pass2(t_scop *sc, char *arg)
 		if (cur_char == '\n')
 		{
 			line = get_nchar(&fd2, char_count + 1);
-			//ft_putstr(line);
+			ft_putstr(line);
+
 			parse_line_filling(sc, line); // actual obj format line parsing;
 			free(line); // clean
 			line_number += 1;

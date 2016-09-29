@@ -75,6 +75,9 @@ typedef struct						s_scop
 	float							*obj_vertices;
 	int								itmp;
 
+	float							*obj_faces;
+	int								faces_itmp;
+
 	// events
 	int								escape_pressed;
 }									t_scop;
@@ -97,9 +100,15 @@ void						parse_line_filling(t_scop *sc, char *line);
 
 void						allocate_variables(t_scop *sc);
 
+void						put_vertex_in_var(t_scop *sc, char *line, int position);
+void						put_faces_in_var(t_scop *sc, char *line, int position);
+
+
 /*
 **	Displaying the object -> glfw and open gl.
 */
 
+int							initGLFW(t_scop *sc);
+int							initOpenGL(t_scop *sc);
 
 #endif

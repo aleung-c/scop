@@ -17,12 +17,12 @@ int		advance_till_char(char *line, int position)
 	int i;
 
 	i = position;
-	while ((line[i] == ' ' || line[i] == '\t'))
+	while (line[i] && isspace(line[i]) == 1)
 		i++;
 	return (i);
 }
 
-void	parse_line_counting(t_scop *sc, char *line)
+void	parse_line_counting(t_scop *sc, char *line) // TODO: a revoir. envisager strcmp;
 {
 	int i;
 
@@ -62,7 +62,7 @@ void	parse_line_counting(t_scop *sc, char *line)
 	{
 		sc->nb_groups += 1;
 	}
-	else if (ft_strncmp(&(line[i]), "usemtl", 5) == 0) // TODO: a revoir.
+	else if (ft_strncmp(&(line[i]), "usemtl", 5) == 0) 
 	{
 		sc->nb_materials += 1;
 	}
@@ -71,26 +71,55 @@ void	parse_line_counting(t_scop *sc, char *line)
 
 void	put_vertex_in_var(t_scop *sc, char *line, int position)
 {
-	int i = position;
+	int i;
 
-	while (line[i])
+	i = position;
+	while (line[i] && sc->itmp < sc->nb_vertices)
 	{
 		while (line[i] && (isspace(line[i]) == 1))
 			i++;
 		if (isdigit(line[i]) == 1 || line[i] == '-')
 		{
-			// CONTINUE HERE.
 			sc->obj_vertices[sc->itmp] = strtof(&(line[i]), NULL);
-			printf("val =  %f \n", sc->obj_vertices[sc->itmp]);
-			// CONTINUE HERE.
-			while (isdigit(line[i]) || line[i] == '.')
+			sc->itmp += 1;
+			//printf("val =  %f \n", sc->obj_vertices[sc->itmp]);	
+			while (isdigit(line[i]) || line[i] == '.' || line[i] == '-')
 				i++;
-			sleep(1);
 		}
 		else
 			i++;
 	}
+}
 
+void	put_faces_in_var(t_scop *sc, char *line, int position)
+{
+	int i;
+
+	i = position;
+
+	while (line[i] && sc->faces_itmp < sc->nb_faces)
+	{
+		while (line[i] && (isspace(line[i]) == 1))
+			i++;
+		if (isdigit(line[i]) == 1)
+		{
+			sc->obj_faces[sc->faces_itmp] = sc->obj_vertices[strtol(&(line[i]), NULL, 10) - 1];
+			//printf("val =  %f \n", sc->obj_faces[sc->faces_itmp]);
+			sc->faces_itmp += 1;
+			sc->obj_faces[sc->faces_itmp] = sc->obj_vertices[strtol(&(line[i]), NULL, 10)];
+			//printf("val =  %f \n", sc->obj_faces[sc->faces_itmp]);
+			sc->faces_itmp += 1;
+			sc->obj_faces[sc->faces_itmp] = sc->obj_vertices[strtol(&(line[i]), NULL, 10) + 1];
+			//printf("val =  %f \n", sc->obj_faces[sc->faces_itmp]);
+			sc->faces_itmp += 1;
+			//sleep(2);
+			while (isdigit(line[i]))
+				i++;
+		}
+		else
+			i++;
+	}
+	return ;
 }
 
 void	parse_line_filling(t_scop *sc, char *line)
@@ -119,6 +148,8 @@ void	parse_line_filling(t_scop *sc, char *line)
 				put_vertex_in_var(sc, line, i);
 		}
 	}
-
-
+	else if (line[i] == 'f')
+	{
+		put_faces_in_var(sc, line, i);
+	}
 }
