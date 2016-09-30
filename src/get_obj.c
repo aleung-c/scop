@@ -26,9 +26,9 @@ char *get_nchar(int *fd2, int char_count)
 
 int get_obj(t_scop *sc, char *arg)
 {
-	int							fd;
+	FILE			*fp;
 
-	if ((fd = open(arg, O_RDONLY)) == -1)
+	if ((fp = fopen(arg, "r")) == NULL)
 	{
 		ft_putendl("File opening error");
 		return (-1);
@@ -36,9 +36,9 @@ int get_obj(t_scop *sc, char *arg)
 	else
 	{
 		data_init(sc);
-		parse_pass1(sc, fd, arg);	// get nb of lines / elements.
+		parse_pass1(sc, fp);	// get nb of lines / elements.
 		allocate_variables(sc);		// allocates required variables.
-		parse_pass2(sc, arg);	// fill allocated variables.
+		parse_pass2(sc,fp);	// fill allocated variables.
 	}
 	return (0);
 }
@@ -60,9 +60,9 @@ void		data_init(t_scop *sc)
 /*
 **	Pass 1's objective is to get number of vertices, textures vertices, faces, etc... for allocation purpose;
 */
-void		parse_pass1(t_scop *sc, int fd, char *arg)
+void		parse_pass1(t_scop *sc, FILE *fp)
 {
-	int							fd2;
+	/*int							fd2;
 	int							ret;
 	int							line_number;
 	char						*line;
@@ -74,6 +74,7 @@ void		parse_pass1(t_scop *sc, int fd, char *arg)
 	char_count = 0;
 	cur_char = 'a';
 	ret = 1;
+
 	while ((ret = read(fd, &cur_char, 1)))
 	{
 		if (cur_char != '\n' && cur_char != '\0' && cur_char != EOF)
@@ -92,7 +93,24 @@ void		parse_pass1(t_scop *sc, int fd, char *arg)
 			char_count = 0;
 			//sleep(1);
 		}
+	}*/
+
+	int			ret;
+	char		buffer[40];
+	char		*line;
+	int			buff_size;
+	int 		line_number;
+
+	buff_size = 100;
+	line_number = 0;
+	while (!feof(fp))
+	{
+		line = (char *)malloc(sizeof(char) * buff_size);
+		fgets(line, buff_size, fp);
+		parse_line_counting(sc, line);
+		line_number += 1;
 	}
+
 	ft_putstr(KGRN "Object file datas:" KRESET);
 	ft_putchar('\n');
 	ft_putstr("total nb of line = ");
@@ -128,12 +146,12 @@ void		parse_pass1(t_scop *sc, int fd, char *arg)
 
 void		allocate_variables(t_scop *sc)
 {
-	if (!(sc->obj_vertices = (float *)malloc(sizeof(float) * sc->nb_vertices)))
+	if (!(sc->obj_vertices = (float *)malloc(sizeof(float) * sc->nb_vertices * 3)))
 	{
 		ft_putendl("vertices allocation failed.");
 		exit (-1);
 	}
-	if (!(sc->obj_faces = (float *)malloc(sizeof(float) * sc->nb_faces)))
+	if (!(sc->obj_faces = (float *)malloc(sizeof(float) * (sc->nb_faces * 3) * 3)))
 	{
 		ft_putendl("face vertices allocation failed.");
 		exit (-1);
@@ -144,39 +162,18 @@ void		allocate_variables(t_scop *sc)
 /*
 **	Pass 2 takes the values and put them in variables.
 */
-void		parse_pass2(t_scop *sc, char *arg)
+void		parse_pass2(t_scop *sc, FILE *fp)
 {
-	int							fd;
-	int							fd2;
-	int							ret;
-	int							line_number;
-	char						*line;
-	char						cur_char;
-	int							char_count;
+	char						*line2;
+	int							buff_size;
 
-	fd = open(arg, O_RDONLY);
-	fd2 = open(arg, O_RDONLY);
-	char_count = 0;
-	cur_char = 'a';
-	ret = 1;
-	while ((ret = read(fd, &cur_char, 1)))
+	fseek(fp, 0, SEEK_SET);
+	buff_size = 100;
+	while (!feof(fp))
 	{
-		if (cur_char != '\n' && cur_char != '\0' && cur_char != EOF)
-		{
-			char_count += 1;
-		}
-		if (cur_char == '\0' || cur_char == EOF || ret == 0)
-			break;
-		if (cur_char == '\n')
-		{
-			line = get_nchar(&fd2, char_count + 1);
-			ft_putstr(line);
-
-			parse_line_filling(sc, line); // actual obj format line parsing;
-			free(line); // clean
-			line_number += 1;
-			char_count = 0;
-		}
+		line2 = (char *)malloc(sizeof(char) * buff_size);
+		fgets(line2, buff_size, fp);
+		parse_line_filling(sc, line2);
 	}
 	//ft_putchar('\n');
 }

@@ -92,8 +92,8 @@ typedef struct						s_scop
 int							get_obj(t_scop *sc, char *arg);
 void						data_init(t_scop *sc);
 
-void						parse_pass1(t_scop *sc, int fd, char *arg);
-void						parse_pass2(t_scop *sc, char *arg);
+void						parse_pass1(t_scop *sc, FILE *fp);
+void						parse_pass2(t_scop *sc, FILE *fp);
 
 void						parse_line_counting(t_scop *sc, char *line);
 void						parse_line_filling(t_scop *sc, char *line);

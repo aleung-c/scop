@@ -50,6 +50,7 @@ int initOpenGL(t_scop *sc)
 	printf ("OpenGL version supported %s\n", version);
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
+	glEnable(GL_DEPTH_TEST);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	#ifndef __APPLE__
 	glewExperimental = GL_TRUE;
@@ -77,13 +78,28 @@ void	scop(t_scop *sc)
 		0.5f, -0.5f, 0.0f,
 		-0.5f, -0.5f, 0.0f
 	};*/
-
-		/*for (int i = 0; i < sc->nb_vertices; i++)
+		/*int i;
+		for ( i = 0; i < sc->nb_vertices; i++)
 		{
-			printf("val = %f \n", sc->obj_vertices[i]);
-			//sleep(1);
-		}*/
+			printf("v %f ", sc->obj_vertices[i]);
+			i++;
+			printf(" %f ", sc->obj_vertices[i]);
+			i++;
+			printf(" %f \n", sc->obj_vertices[i]);
+			if (i > 10)
+				sleep(1);
 
+		}
+		printf("i = %d\n", i);*/
+
+
+		/*int j = 0;
+		while (j < sc->nb_vertices)
+		{
+			printf("v %f %f %f \n", sc->obj_vertices[j], sc->obj_vertices[j + 1], sc->obj_vertices[j + 2]);
+			j += 2;
+			sleep(1);
+		}*/
 
 	// -------------------------------------------------------------------------- //
 	//	VBO - Vertex buffer object												  //
@@ -91,12 +107,12 @@ void	scop(t_scop *sc)
 	GLuint vbo = 0;
 	glGenBuffers (1, &vbo);
 	glBindBuffer (GL_ARRAY_BUFFER, vbo);
-	glBufferData (GL_ARRAY_BUFFER, (sc->nb_vertices) * sizeof (float), sc->obj_vertices, GL_STATIC_DRAW);
+	glBufferData (GL_ARRAY_BUFFER, (sc->nb_vertices * 3) * sizeof (float), sc->obj_vertices, GL_STATIC_DRAW);
 
 	GLuint vbo2 = 0;
 	glGenBuffers (1, &vbo2);
 	glBindBuffer (GL_ARRAY_BUFFER, vbo2);
-	glBufferData (GL_ARRAY_BUFFER, (sc->nb_faces * 3) * sizeof (float), sc->obj_faces, GL_STATIC_DRAW);
+	glBufferData (GL_ARRAY_BUFFER, ((sc->nb_faces * 3) * 3) * sizeof (float), sc->obj_faces, GL_STATIC_DRAW);
 
 	// -------------------------------------------------------------------------- //
 	//	VAO - Vertex Array object												  //
@@ -131,7 +147,7 @@ void	scop(t_scop *sc)
 		"#version 410\n"
 		"in vec3 vp;"
 		"void main () {"
-		"  gl_Position = vec4 (vp, 100.0);"
+		"  gl_Position = vec4 (vp, 5.0);"
 		"  gl_PointSize = 1.0;"
 		"}";
 
@@ -186,10 +202,10 @@ void	scop(t_scop *sc)
 		glBindVertexArray (vao);
 
 		// draw points 0-3 from the currently bound VAO with current in-use shader
-		glDrawArrays (GL_POINTS, 0, sc->nb_vertices);
+		glDrawArrays (GL_POINTS, 0, sc->nb_vertices * 3);
 
 		glBindVertexArray(vao2);
-		glDrawArrays (GL_TRIANGLES, 0, sc->nb_faces * 3);
+		glDrawArrays (GL_TRIANGLE_FAN, 0, ((sc->nb_faces * 3) * 3));
 		// update other events like input handling 
 		glfwPollEvents ();
 		// put the stuff we've been drawing onto the display
