@@ -52,6 +52,8 @@ int initOpenGL(t_scop *sc)
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glEnable(GL_DEPTH_TEST);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	
+
 	#ifndef __APPLE__
 	glewExperimental = GL_TRUE;
 	glewInit();
@@ -125,7 +127,7 @@ void	scop(t_scop *sc)
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, 0, NULL);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 	GLuint vao2 = 0;
 
@@ -135,7 +137,7 @@ void	scop(t_scop *sc)
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo2);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, 0, NULL);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 
 
@@ -205,7 +207,7 @@ void	scop(t_scop *sc)
 		glDrawArrays (GL_POINTS, 0, sc->nb_vertices * 3);
 
 		glBindVertexArray(vao2);
-		glDrawArrays (GL_TRIANGLE_FAN, 0, ((sc->nb_faces * 3) * 3));
+		glDrawArrays (GL_TRIANGLES, 0, ((sc->nb_faces * 3) * 3));
 		// update other events like input handling 
 		glfwPollEvents ();
 		// put the stuff we've been drawing onto the display
@@ -221,6 +223,7 @@ int		main(int argc, char **argv)
 	{
 		if (get_obj(&sc, argv[1]) == 0)
 		{
+			
 			scop(&sc);
 		}
 	}

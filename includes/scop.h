@@ -55,6 +55,23 @@
 #define KWHT  "\x1B[37m"
 #define KRESET "\x1B[0m"
 
+typedef enum token_type
+{
+	word,
+	numeric_value,
+	indices,
+
+	error
+};
+
+// lexer parser
+typedef struct						s_token
+{
+	char							*value;
+	s_token							*next;
+	
+}									t_token;
+
 typedef struct						s_scop
 {
 	GLFWwindow						*window;
@@ -81,6 +98,8 @@ typedef struct						s_scop
 	// events
 	int								escape_pressed;
 }									t_scop;
+
+
 
 /*
 **	Function Prototypes.

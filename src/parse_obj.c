@@ -123,11 +123,11 @@ void	put_faces_in_var(t_scop *sc, char *line, int position)
 			tmp++;
 		if (*tmp && (isdigit(*tmp) == 1))
 		{
-			sc->obj_faces[sc->faces_itmp] = sc->obj_vertices[strtol(&(*tmp), NULL, 10) + 1];
+			sc->obj_faces[sc->faces_itmp] = sc->obj_vertices[((strtol(&(*tmp), NULL, 10)) * 3)];
 			sc->faces_itmp += 1;
-			sc->obj_faces[sc->faces_itmp] = sc->obj_vertices[strtol(&(*tmp), NULL, 10) + 2];
+			sc->obj_faces[sc->faces_itmp] = sc->obj_vertices[((strtol(&(*tmp), NULL, 10)) * 3) + 1];
 			sc->faces_itmp += 1;
-			sc->obj_faces[sc->faces_itmp] = sc->obj_vertices[strtol(&(*tmp), &tmp, 10) + 3];
+			sc->obj_faces[sc->faces_itmp] = sc->obj_vertices[((strtol(&(*tmp), &tmp, 10)) * 3) + 2];
 			sc->faces_itmp += 1;
 			//sc->obj_vertices[sc->itmp] = strtof(&(*tmp), &tmp);
 			//printf("val =  %f\n", sc->obj_vertices[sc->itmp]);
