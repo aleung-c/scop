@@ -29,9 +29,7 @@ int get_obj(t_scop *sc, char *arg)
 	FILE			*fp;
 	char			*buf;
 	size_t			buf_size;
-	char			*ret_str;
-	int				ret_str_size;
-	int				getline_ret;
+	int				line_number;
 
 	if ((fp = fopen(arg, "r")) == NULL)
 	{
@@ -40,44 +38,33 @@ int get_obj(t_scop *sc, char *arg)
 	}
 	else
 	{
+		sc->fp = fp;
 		buf = NULL;
 		buf_size = 0;
-		ret_str = (char *)malloc(sizeof(char) * 1);
-		ret_str[0] = '\0';
-		ret_str_size = 1;
-		while ((getline_ret = getline(&buf, &buf_size, fp)) > 0)
+		line_number = 0;
+		// ret_str = (char *)malloc(sizeof(char) * 1);
+		// ret_str[0] = '\0';
+		// ret_str_size = 1;
+		sc->obj_token_list = NULL;
+		while ((getline(&buf, &buf_size, fp)) > 0)
 		{
-			ret_str_size += getline_ret;
-			ret_str = (char *)realloc(ret_str, ret_str_size + 1);
-			ft_strncat(ret_str, buf, strlen(buf));
-			ret_str[ret_str_size] = '\n';
+			lex_obj_line(sc, buf, line_number);
+			// ret_str_size += getline_ret;
+			// ret_str = (char *)realloc(ret_str, ret_str_size + 1);
+			// ft_strncat(ret_str, buf, strlen(buf));
+			// ret_str[ret_str_size] = '\n';
 			free(buf);
 			buf = NULL;
+			line_number++;
 		}
+		// sc->file_str = ret_str;
 		fclose(fp);
-		// Print file content;
-		//printf("%s \n", ret_str);
-		//sleep(10);
-		// TODO : Parse and stuff --> right now, NON COMPILABLE
+		//  Print file content;
+		// printf("%s \n", sc->file_str);
+		// sleep(10);
 		return (0);
 	}
 	return (0);
-}
-
-
-
-void		data_init(t_scop *sc)
-{
-	sc->nb_vertices = 0;
-	sc->nb_texture_vertices = 0;
-	sc->nb_normals_vertices = 0;
-	sc->nb_parameter_space_vertices = 0;
-	sc->nb_faces = 0;
-	sc->nb_obj = 0;
-	sc->nb_groups = 0;
-	sc->nb_materials = 0;
-	sc->itmp = 0;
-	sc->faces_itmp = 0;
 }
 
 /*

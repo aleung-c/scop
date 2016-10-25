@@ -14,7 +14,10 @@ NAME = scop
 
 HEADER = includes/scop.h
 
-SRC = src/scop.c src/get_obj.c src/parse_obj.c
+SRC = src/scop.c \
+src/get_obj.c \
+src/parse_obj.c \
+src/lex_obj.c
 
 OBJ = $(SRC:.c=.o)
 

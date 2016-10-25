@@ -12,6 +12,12 @@
 
 #include "../includes/scop.h"
 
+void						parse_obj(t_scop *sc)
+{
+	(void *)sc;
+	return ;
+}
+
 int		advance_till_char(char *line, int position)
 {
 	int i;

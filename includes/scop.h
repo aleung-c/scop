@@ -55,20 +55,23 @@
 #define KWHT  "\x1B[37m"
 #define KRESET "\x1B[0m"
 
-typedef enum token_type
+typedef enum	e_token_type
 {
 	word,
 	numeric_value,
 	indices,
 
 	error
-};
+}				s_token_type;
 
 // lexer parser
 typedef struct						s_token
 {
+	int								line_number;
+	int								col_number;
+	s_token_type					token_type;
 	char							*value;
-	s_token							*next;
+	struct s_token					*next;
 	
 }									t_token;
 
@@ -79,6 +82,9 @@ typedef struct						s_scop
 	//SDL_GLContext					*main_context;
 	//SDL_Renderer					*renderer;
 
+	// File Lexer / parser
+	FILE							*fp;
+	t_token							*obj_token_list;
 	// file parsing datas
 	unsigned long int				nb_vertices; 					// v
 	unsigned long int				nb_texture_vertices;			// vt
@@ -109,6 +115,13 @@ typedef struct						s_scop
 **	Get Object and parse it;
 */
 int							get_obj(t_scop *sc, char *arg);
+
+void						lex_obj(t_scop *sc);
+void						lex_obj_line(t_scop *sc, char *line, int line_number);
+void						set_token_type(t_token *cur_token, char *token_str);
+void						add_token_to_list(t_scop *sc, t_token *obj_token_list, t_token *cur_token);
+
+void						parse_obj(t_scop *sc);
 void						data_init(t_scop *sc);
 
 void						parse_pass1(t_scop *sc, FILE *fp);

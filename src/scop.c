@@ -215,6 +215,20 @@ void	scop(t_scop *sc)
 	}
 }
 
+void		data_init(t_scop *sc)
+{
+	sc->nb_vertices = 0;
+	sc->nb_texture_vertices = 0;
+	sc->nb_normals_vertices = 0;
+	sc->nb_parameter_space_vertices = 0;
+	sc->nb_faces = 0;
+	sc->nb_obj = 0;
+	sc->nb_groups = 0;
+	sc->nb_materials = 0;
+	sc->itmp = 0;
+	sc->faces_itmp = 0;
+}
+
 int		main(int argc, char **argv)
 {
 	t_scop		sc;
@@ -223,7 +237,9 @@ int		main(int argc, char **argv)
 	{
 		if (get_obj(&sc, argv[1]) == 0)
 		{
-			
+			data_init(&sc);
+			//lex_obj(&sc); // fill chained list of tokens.
+			parse_obj(&sc); // parse it and fill datas.
 			scop(&sc);
 		}
 	}
