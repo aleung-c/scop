@@ -21,6 +21,7 @@
 //# include <X11/Xlib.h>
 # include <mlx.h>
 # include <ctype.h>
+# include <regex.h>
 
 // Linking SDL2
 //# include <SDL2/SDL.h>
@@ -120,6 +121,8 @@ void						lex_obj(t_scop *sc);
 void						lex_obj_line(t_scop *sc, char *line, int line_number);
 void						set_token_type(t_token *cur_token, char *token_str);
 void						add_token_to_list(t_scop *sc, t_token *obj_token_list, t_token *cur_token);
+
+int							regex_match(char *string_to_search, char *regex_str);
 
 void						parse_obj(t_scop *sc);
 void						data_init(t_scop *sc);

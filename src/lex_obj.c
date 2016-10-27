@@ -63,10 +63,68 @@ void lex_obj_line(t_scop *sc, char *line, int line_number)
 
 void set_token_type(t_token *cur_token, char *token_str)
 {
-	if (token_str)
+	if (regex_match(token_str, "^[a-zA-Z]+$"))
 	{
+		printf("match word\n");
 		cur_token->token_type = word;
 	}
+	else if (regex_match(token_str, "^[-]?[0-9]*\\.?[0-9]*$"))
+	{
+		printf("match num val\n");
+		cur_token->token_type = numeric_value;
+	}
+	else if (regex_match(token_str, "^[-]?[0-9]*\\.?[0-9]*$"))
+	{
+		printf("match num val\n");
+		cur_token->token_type = numeric_value;
+	}
+
+	// ^[-]?[0-9]+\/?[-]?[0-9]*\/?[-]?[0-9]*$
+	// TODO: ci dessus, regex pour les indices. ne fonctionne pas sur les cas
+	// 1//
+	// 1/43/
+
+	sleep(2);	
+}
+
+// return 1 for match founds, 0 for no match founds
+int			regex_match(char *string_to_search, char *regex_str)
+{
+	int				err;
+	int				match;
+	regex_t			regex;
+	char			msgbuf[100];
+
+	// compile regex
+	err = regcomp(&regex, regex_str, REG_NOSUB | REG_EXTENDED);
+	if (err)
+	{
+		fprintf(stderr, "Could not compile regex\n");
+		exit(1);
+	}
+	else
+	{
+		/* Execute regular expression */
+		match = regexec(&regex, string_to_search, 0, NULL, 0);
+		if (match == 0)
+		{
+			regfree(&regex);
+			return (1);
+		}
+		else if (match == REG_NOMATCH)
+		{
+			regfree(&regex);
+			return (0);
+		}
+		else
+		{
+			regerror(match, &regex, msgbuf, sizeof(msgbuf));
+			fprintf(stderr, "Regex match failed: %s\n", msgbuf);
+			regfree(&regex);
+			exit(1);
+		}
+	}
+	return (0);
 }
 
 void add_token_to_list(t_scop *sc, t_token *obj_token_list, t_token *cur_token)

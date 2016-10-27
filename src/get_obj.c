@@ -30,6 +30,7 @@ int get_obj(t_scop *sc, char *arg)
 	char			*buf;
 	size_t			buf_size;
 	int				line_number;
+	char			*pch;
 
 	if ((fp = fopen(arg, "r")) == NULL)
 	{
@@ -42,17 +43,20 @@ int get_obj(t_scop *sc, char *arg)
 		buf = NULL;
 		buf_size = 0;
 		line_number = 0;
-		// ret_str = (char *)malloc(sizeof(char) * 1);
-		// ret_str[0] = '\0';
-		// ret_str_size = 1;
+
+
 		sc->obj_token_list = NULL;
 		while ((getline(&buf, &buf_size, fp)) > 0)
 		{
+			// comment check;
+			pch = strchr(buf,'#');
+			if (pch)
+			{
+				buf[pch-str] = '\0'; // delete everything after #
+			}
+
 			lex_obj_line(sc, buf, line_number);
-			// ret_str_size += getline_ret;
-			// ret_str = (char *)realloc(ret_str, ret_str_size + 1);
-			// ft_strncat(ret_str, buf, strlen(buf));
-			// ret_str[ret_str_size] = '\n';
+
 			free(buf);
 			buf = NULL;
 			line_number++;
