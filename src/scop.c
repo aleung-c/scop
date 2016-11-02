@@ -235,11 +235,11 @@ int		main(int argc, char **argv)
 
 	if (argc == 2)
 	{
-		if (get_obj(&sc, argv[1]) == 0)
+		if (get_obj(&sc, argv[1]) == 0) // open file and fill chained list of tokens.
 		{
-			data_init(&sc);
-			//lex_obj(&sc); // fill chained list of tokens.
 			parse_obj(&sc); // parse it and fill datas.
+			data_init(&sc);
+			
 			scop(&sc);
 		}
 	}

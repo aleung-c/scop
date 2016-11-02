@@ -125,12 +125,14 @@ void						add_token_to_list(t_scop *sc, t_token *obj_token_list, t_token *cur_to
 int							regex_match(char *string_to_search, char *regex_str);
 
 void						parse_obj(t_scop *sc);
+int							check_tokens(t_scop *sc);
+
 void						data_init(t_scop *sc);
 
 void						parse_pass1(t_scop *sc, FILE *fp);
 void						parse_pass2(t_scop *sc, FILE *fp);
 
-void						parse_line_counting(t_scop *sc, char *line);
+//void						parse_line_counting(t_scop *sc, char *line);
 void						parse_line_filling(t_scop *sc, char *line);
 
 void						allocate_variables(t_scop *sc);

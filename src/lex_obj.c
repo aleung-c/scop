@@ -51,9 +51,9 @@ void lex_obj_line(t_scop *sc, char *line, int line_number)
 		cur_token = (t_token *)malloc(sizeof(t_token));
 		cur_token->line_number = line_number;
 		cur_token->col_number = col_number;
+		cur_token->value = token_str;
 		set_token_type(cur_token, token_str);
 		add_token_to_list(sc, sc->obj_token_list, cur_token);
-//		printf("%s\n", token_str);
 
 		token_str = strtok(NULL, " \t\n");
 		col_number++;
@@ -73,18 +73,22 @@ void set_token_type(t_token *cur_token, char *token_str)
 		printf("match num val\n");
 		cur_token->token_type = numeric_value;
 	}
-	else if (regex_match(token_str, "^[-]?[0-9]*\\.?[0-9]*$"))
+	else if (regex_match(token_str, "^[-]?[0-9]+\\/?[-]?[0-9]*\\/?[-]?[0-9]*$")
+			&& token_str[strlen(token_str) - 1] != '/')
 	{
-		printf("match num val\n");
-		cur_token->token_type = numeric_value;
+		// ne peut pas voir / en dernier char.
+		// pour les cas
+		// 1//
+		// 1/43/
+		printf("match indice\n");
+		cur_token->token_type = indices;
 	}
-
-	// ^[-]?[0-9]+\/?[-]?[0-9]*\/?[-]?[0-9]*$
-	// TODO: ci dessus, regex pour les indices. ne fonctionne pas sur les cas
-	// 1//
-	// 1/43/
-
-	sleep(2);	
+	else
+	{
+		printf("no match - error token\n");
+		cur_token->token_type = error;
+	}
+	// sleep(2);
 }
 
 // return 1 for match founds, 0 for no match founds

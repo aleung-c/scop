@@ -44,7 +44,6 @@ int get_obj(t_scop *sc, char *arg)
 		buf_size = 0;
 		line_number = 0;
 
-
 		sc->obj_token_list = NULL;
 		while ((getline(&buf, &buf_size, fp)) > 0)
 		{
@@ -52,11 +51,9 @@ int get_obj(t_scop *sc, char *arg)
 			pch = strchr(buf,'#');
 			if (pch)
 			{
-				buf[pch-str] = '\0'; // delete everything after #
+				buf[pch - buf] = '\0'; // delete everything after #
 			}
-
-			lex_obj_line(sc, buf, line_number);
-
+			lex_obj_line(sc, buf, line_number); // create token list
 			free(buf);
 			buf = NULL;
 			line_number++;
@@ -121,7 +118,7 @@ void		parse_pass1(t_scop *sc, FILE *fp)
 	{
 		line = (char *)malloc(sizeof(char) * buff_size);
 		fgets(line, buff_size, fp);
-		parse_line_counting(sc, line);
+		//parse_line_counting(sc, line);
 		line_number += 1;
 	}
 

@@ -14,65 +14,50 @@
 
 void						parse_obj(t_scop *sc)
 {
-	(void *)sc;
+	if (check_tokens(sc) != -1)
+	{
+		printf("Error in tokens\n");
+		exit(-1);
+	}
+	// STEP 1: check token order.
+	// STEP 2: check token dictionnary.
+	// STEP 3: check particular case. (optional);
+	// STEP 4: check if token values are correct (optional);
+
 	return ;
 }
 
-int		advance_till_char(char *line, int position)
+int			check_tokens(t_scop *sc)
 {
-	int i;
-
-	i = position;
-	while (line[i] && isspace(line[i]) == 1)
-		i++;
-	return (i);
-}
-
-void	parse_line_counting(t_scop *sc, char *line) // TODO: a revoir.
-{
-	int i;
+	t_token		*tmp;
+	int			i;
 
 	i = 0;
-	i = advance_till_char(line, 0);
-	if (line[i] == '\0' || line[i] == '#')
+	tmp = sc->obj_token_list;
+	while (tmp)
 	{
-		return ;
-	}
-	else if (line[i] == 'v')
-	{
-		if (line[i + 1])
+
+		printf("token %d\n  value = %s\n line nb = %d\n col nb = %d\n",
+				i,
+				tmp->value,
+				tmp->line_number,
+				tmp->col_number);
+		if (tmp->token_type == word)
 		{
-			if (line[i + 1] == 't')
-				sc->nb_texture_vertices += 1;
-			else if (line[i + 1] == 'n')
-				sc->nb_normals_vertices += 1;
-			else if (line[i + 1] == 'p')
-				sc->nb_parameter_space_vertices += 1;
-			else
-				sc->nb_vertices += 1;
+			printf("token type = word\n");
 		}
-		else
+		else if (tmp->token_type == numeric_value)
 		{
-			sc->nb_vertices += 1;
+			printf("token type = numeric_value\n");
 		}
+		else if (tmp->token_type == indices)
+		{
+			printf("token type = numeric_value\n");
+		}		
+		tmp = tmp->next;
+		i++;
 	}
-	else if (line[i] == 'f')
-	{
-		sc->nb_faces += 1;
-	}
-	else if (line[i] == 'o')
-	{
-		sc->nb_obj += 1;
-	}
-	else if (line[i] == 'g')
-	{
-		sc->nb_groups += 1;
-	}
-	else if (ft_strncmp(&(line[i]), "usemtl", 5) == 0)
-	{
-		sc->nb_materials += 1;
-	}
-	return ;
+	return (0);	
 }
 
 void	put_vertex_in_var(t_scop *sc, char *line, int position)
@@ -151,7 +136,7 @@ void	parse_line_filling(t_scop *sc, char *line)
 	int i;
 
 	i = 0;
-	i = advance_till_char(line, 0);
+	//i = advance_till_char(line, 0);
 
 	if (line[i] == '\0' || line[i] == '#')
 	{
