@@ -122,53 +122,9 @@ void		parse_pass1(t_scop *sc, FILE *fp)
 		line_number += 1;
 	}
 
-	ft_putstr(KGRN "Object file datas:" KRESET);
-	ft_putchar('\n');
-	ft_putstr("total nb of line = ");
-	ft_putnbr(line_number);
-	ft_putchar('\n');
-
-	ft_putstr("Nb of vertices = ");
-	ft_putnbr(sc->nb_vertices);
-	ft_putchar('\n');
-	ft_putstr("Nb of tex vertices = ");
-	ft_putnbr(sc->nb_texture_vertices);
-	ft_putchar('\n');
-	ft_putstr("Nb of normals vertices = ");
-	ft_putnbr(sc->nb_normals_vertices);
-	ft_putchar('\n');
-	ft_putstr("Nb of parameter space vertices = ");
-	ft_putnbr(sc->nb_parameter_space_vertices);
-	ft_putchar('\n');
-	ft_putstr("Nb of faces = ");
-	ft_putnbr(sc->nb_faces);
-	ft_putchar('\n');
-	ft_putstr("Nb of obj = ");
-	ft_putnbr(sc->nb_obj);
-	ft_putchar('\n');
-	ft_putstr("Nb of groups = ");
-	ft_putnbr(sc->nb_groups);
-	ft_putchar('\n');
-	ft_putstr("Nb of materials = ");
-	ft_putnbr(sc->nb_materials);
-	ft_putchar('\n');
-	ft_putchar('\n');
+	
 }
 
-void		allocate_variables(t_scop *sc)
-{
-	if (!(sc->obj_vertices = (float *)malloc(sizeof(float) * sc->nb_vertices * 3)))
-	{
-		ft_putendl("vertices allocation failed.");
-		exit (-1);
-	}
-	if (!(sc->obj_faces = (float *)malloc(sizeof(float) * (sc->nb_faces * 3) * 3)))
-	{
-		ft_putendl("face vertices allocation failed.");
-		exit (-1);
-	}
-	ft_putendl("- All model variables allocated.");
-}
 
 /*
 **	Pass 2 takes the values and put them in variables.

@@ -17,7 +17,9 @@ HEADER = includes/scop.h
 SRC = src/scop.c \
 src/get_obj.c \
 src/parse_obj.c \
-src/lex_obj.c
+src/lex_obj.c \
+src/dictionnary.c \
+src/get_values.c
 
 OBJ = $(SRC:.c=.o)
 

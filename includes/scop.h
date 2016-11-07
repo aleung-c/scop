@@ -31,18 +31,20 @@
 
 // Linking OpenGL
 # if defined(__APPLE__)
-# include <OpenGL/gl3.h>
-# include <OpenGL/gl3ext.h>
+#  define __gl_h_
+#  define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
+#  include <OpenGL/gl3.h>
+#  include <OpenGL/gl3ext.h>
 // #  include <OpenGL/gl.h>
 // # include <OpenGL/glext.h>
- # include <OpenGL/glu.h>
- # include <GLUT/glut.h>
+#  include <OpenGL/glu.h>
+#  include <GLUT/glut.h>
 
 # else
- #  include <GL/gl3.h>
+#  include <GL/gl3.h>
  // #  include <GL/gl.h>
- # include <GL/glu.h>
- # include <GL/glew.h>
+#  include <GL/glu.h>
+#  include <GL/glew.h>
 # endif
 
 // color in text;
@@ -76,6 +78,12 @@ typedef struct						s_token
 	
 }									t_token;
 
+typedef struct						s_dictionnary_word
+{
+	char							*string;
+	struct s_dictionnary_word		*next;
+}									t_dictionnary_word;
+
 typedef struct						s_scop
 {
 	GLFWwindow						*window;
@@ -87,11 +95,14 @@ typedef struct						s_scop
 	FILE							*fp;
 	t_token							*obj_token_list;
 	// file parsing datas
+	t_dictionnary_word				*word_dictionnary_list;
 	unsigned long int				nb_vertices; 					// v
 	unsigned long int				nb_texture_vertices;			// vt
 	unsigned long int				nb_normals_vertices;			// vn
 	unsigned long int				nb_parameter_space_vertices;	// vp
-	unsigned long int				nb_faces;						// f
+	unsigned long int				nb_faces_3;						// f
+	unsigned long int				nb_faces_4;
+	unsigned long int				nb_faces_more;
 	unsigned long int				nb_obj;
 	unsigned long int				nb_groups;
 	unsigned long int				nb_materials;
@@ -99,7 +110,7 @@ typedef struct						s_scop
 	float							*obj_vertices;
 	int								itmp;
 
-	float							*obj_faces;
+	float							*obj_faces_3;
 	int								faces_itmp;
 
 	// events
@@ -124,12 +135,30 @@ void						add_token_to_list(t_scop *sc, t_token *obj_token_list, t_token *cur_to
 
 int							regex_match(char *string_to_search, char *regex_str);
 
+void						print_tokens(t_scop *sc);
+void						print_parser_error(t_token *token, char *error_string);
+
+
+void						init_dictionnaries(t_scop *sc);
+void						add_word_to_dictionnary(t_scop *sc, char *word);
+int							is_word_in_dictionnary(t_scop *sc, char *word);
+
 void						parse_obj(t_scop *sc);
 int							check_tokens(t_scop *sc);
+void						change_token_indice_type(t_scop *sc);
+
+// token steps
+void						check_token_order(t_scop *sc);
+void						dictionnary_comparison(t_scop *sc);
 
 void						data_init(t_scop *sc);
 
+void						count_values(t_scop *sc);
+void						get_values(t_scop *sc);
+
+// V Dropped. to delete. V
 void						parse_pass1(t_scop *sc, FILE *fp);
+// V Dropped. to delete. V
 void						parse_pass2(t_scop *sc, FILE *fp);
 
 //void						parse_line_counting(t_scop *sc, char *line);

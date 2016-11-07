@@ -109,12 +109,12 @@ void	scop(t_scop *sc)
 	GLuint vbo = 0;
 	glGenBuffers (1, &vbo);
 	glBindBuffer (GL_ARRAY_BUFFER, vbo);
-	glBufferData (GL_ARRAY_BUFFER, (sc->nb_vertices * 3) * sizeof (float), sc->obj_vertices, GL_STATIC_DRAW);
+	glBufferData (GL_ARRAY_BUFFER, (sc->nb_vertices * 4) * sizeof (float), sc->obj_vertices, GL_STATIC_DRAW);
 
 	GLuint vbo2 = 0;
 	glGenBuffers (1, &vbo2);
 	glBindBuffer (GL_ARRAY_BUFFER, vbo2);
-	glBufferData (GL_ARRAY_BUFFER, ((sc->nb_faces * 3) * 3) * sizeof (float), sc->obj_faces, GL_STATIC_DRAW);
+	glBufferData (GL_ARRAY_BUFFER, ((sc->nb_faces_3 * 3) * 3) * sizeof (float), sc->obj_faces_3, GL_STATIC_DRAW);
 
 	// -------------------------------------------------------------------------- //
 	//	VAO - Vertex Array object												  //
@@ -127,7 +127,7 @@ void	scop(t_scop *sc)
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
 
 	GLuint vao2 = 0;
 
@@ -138,8 +138,6 @@ void	scop(t_scop *sc)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo2);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-
 
 	// -------------------------------------------------------------------------- //
 	//	Shaders																	  //
@@ -197,17 +195,16 @@ void	scop(t_scop *sc)
 	// -------------------------------------------------------------------------- //
 	while (!glfwWindowShouldClose(sc->window))
 	{
-
 		// wipe the drawing surface clear
 		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glUseProgram (shader_programme);
 		glBindVertexArray (vao);
 
 		// draw points 0-3 from the currently bound VAO with current in-use shader
-		glDrawArrays (GL_POINTS, 0, sc->nb_vertices * 3);
+		glDrawArrays (GL_POINTS, 0, sc->nb_vertices * 4);
 
 		glBindVertexArray(vao2);
-		glDrawArrays (GL_TRIANGLES, 0, ((sc->nb_faces * 3) * 3));
+		glDrawArrays (GL_TRIANGLES, 0, ((sc->nb_faces_3 * 3) * 3));
 		// update other events like input handling 
 		glfwPollEvents ();
 		// put the stuff we've been drawing onto the display
@@ -221,7 +218,9 @@ void		data_init(t_scop *sc)
 	sc->nb_texture_vertices = 0;
 	sc->nb_normals_vertices = 0;
 	sc->nb_parameter_space_vertices = 0;
-	sc->nb_faces = 0;
+	sc->nb_faces_3 = 0;
+	sc->nb_faces_4 = 0;
+	sc->nb_faces_more = 0;
 	sc->nb_obj = 0;
 	sc->nb_groups = 0;
 	sc->nb_materials = 0;
@@ -229,16 +228,36 @@ void		data_init(t_scop *sc)
 	sc->faces_itmp = 0;
 }
 
+void		allocate_variables(t_scop *sc)
+{
+	if (!(sc->obj_vertices = (float *)malloc(sizeof(float) * sc->nb_vertices * 4)))
+	{
+		ft_putendl("vertices allocation failed.");
+		exit (-1);
+	}
+	if (!(sc->obj_faces_3 = (float *)malloc(sizeof(float) * (sc->nb_faces_3 * 3) * 3)))
+	{
+		ft_putendl("faces_3 - 3 vertices allocation failed.");
+		exit (-1);
+	}
+	ft_putendl("- vertices and faces_3 variables allocated.");
+}
+
+
 int		main(int argc, char **argv)
 {
 	t_scop		sc;
 
 	if (argc == 2)
 	{
-		if (get_obj(&sc, argv[1]) == 0) // open file and fill chained list of tokens.
+		if (get_obj(&sc, argv[1]) == 0) // open file and fill chained list of tokens(lexer).
 		{
-			parse_obj(&sc); // parse it and fill datas.
-			data_init(&sc);
+			data_init(&sc); // set all values to zero;
+			init_dictionnaries(&sc); // init dictionnaries with authorised obj words.
+			parse_obj(&sc); // parse the obj: are these lines corrects ?
+			count_values(&sc); // has to count for mallocating.
+			allocate_variables(&sc);
+			get_values(&sc); // fill values in mallocated vars;
 			
 			scop(&sc);
 		}

@@ -33,7 +33,7 @@ void						lex_obj(t_scop *sc)
 		line_number++;
 		free(line_cpy);
 	}
-	printf("file lexing done \n");
+	//printf("file lexing done \n");
 	return;
 }
 
@@ -51,7 +51,8 @@ void lex_obj_line(t_scop *sc, char *line, int line_number)
 		cur_token = (t_token *)malloc(sizeof(t_token));
 		cur_token->line_number = line_number;
 		cur_token->col_number = col_number;
-		cur_token->value = token_str;
+		cur_token->value = (char *)malloc(sizeof(char) * strlen(token_str));
+		cur_token->value = strcpy(cur_token->value, token_str);
 		set_token_type(cur_token, token_str);
 		add_token_to_list(sc, sc->obj_token_list, cur_token);
 
@@ -65,12 +66,12 @@ void set_token_type(t_token *cur_token, char *token_str)
 {
 	if (regex_match(token_str, "^[a-zA-Z]+$"))
 	{
-		printf("match word\n");
+		//printf("match word\n");
 		cur_token->token_type = word;
 	}
 	else if (regex_match(token_str, "^[-]?[0-9]*\\.?[0-9]*$"))
 	{
-		printf("match num val\n");
+		//printf("match num val\n");
 		cur_token->token_type = numeric_value;
 	}
 	else if (regex_match(token_str, "^[-]?[0-9]+\\/?[-]?[0-9]*\\/?[-]?[0-9]*$")
@@ -80,18 +81,18 @@ void set_token_type(t_token *cur_token, char *token_str)
 		// pour les cas
 		// 1//
 		// 1/43/
-		printf("match indice\n");
+		//printf("match indice\n");
 		cur_token->token_type = indices;
 	}
 	else
 	{
-		printf("no match - error token\n");
+		//printf("no match - error token\n");
 		cur_token->token_type = error;
 	}
 	// sleep(2);
 }
 
-// return 1 for match founds, 0 for no match founds
+// utility function: return 1 for match founds, 0 for no match founds
 int			regex_match(char *string_to_search, char *regex_str)
 {
 	int				err;
