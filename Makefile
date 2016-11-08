@@ -19,7 +19,10 @@ src/get_obj.c \
 src/parse_obj.c \
 src/lex_obj.c \
 src/dictionnary.c \
-src/get_values.c
+src/get_values.c \
+src/matrix_identity.c \
+src/matrix_translation.c \
+src/matrix_scaling.c
 
 OBJ = $(SRC:.c=.o)
 

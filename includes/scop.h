@@ -107,11 +107,20 @@ typedef struct						s_scop
 	unsigned long int				nb_groups;
 	unsigned long int				nb_materials;
 
+	// actual variables
 	float							*obj_vertices;
 	int								itmp;
 
+	unsigned int					*face_3_indices;
+	int								indices_itmp;
+
 	float							*obj_faces_3;
 	int								faces_itmp;
+
+	// matrix handling
+	float							matrix_identity[4][4];
+	float							matrix_translation[4][4];
+	float							matrix_scaling[4][4];
 
 	// events
 	int								escape_pressed;
@@ -169,6 +178,10 @@ void						allocate_variables(t_scop *sc);
 void						put_vertex_in_var(t_scop *sc, char *line, int position);
 void						put_faces_in_var(t_scop *sc, char *line, int position);
 
+// matrix handling
+void						init_identity_matrix(t_scop *sc);
+void						init_translation_matrix(t_scop *sc);
+void						set_translation_matrix(t_scop *sc, float x, float y, float z);
 
 /*
 **	Displaying the object -> glfw and open gl.

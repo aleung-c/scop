@@ -103,18 +103,6 @@ void	scop(t_scop *sc)
 			sleep(1);
 		}*/
 
-	// -------------------------------------------------------------------------- //
-	//	VBO - Vertex buffer object												  //
-	// -------------------------------------------------------------------------- //
-	GLuint vbo = 0;
-	glGenBuffers (1, &vbo);
-	glBindBuffer (GL_ARRAY_BUFFER, vbo);
-	glBufferData (GL_ARRAY_BUFFER, (sc->nb_vertices * 4) * sizeof (float), sc->obj_vertices, GL_STATIC_DRAW);
-
-	GLuint vbo2 = 0;
-	glGenBuffers (1, &vbo2);
-	glBindBuffer (GL_ARRAY_BUFFER, vbo2);
-	glBufferData (GL_ARRAY_BUFFER, ((sc->nb_faces_3 * 3) * 3) * sizeof (float), sc->obj_faces_3, GL_STATIC_DRAW);
 
 	// -------------------------------------------------------------------------- //
 	//	VAO - Vertex Array object												  //
@@ -122,14 +110,35 @@ void	scop(t_scop *sc)
 	GLuint vao = 0;
 
 	glGenVertexArrays(1, &vao);
-
 	glBindVertexArray(vao);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
+	// -------------------------------------------------------------------------- //
+	//	VBO - Vertex buffer object												  //
+	// -------------------------------------------------------------------------- //
+	// generating vbo buffers
+	GLuint			vbo;
+	glGenBuffers(1, &vbo);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, (sc->nb_vertices * 4) * sizeof(float), sc->obj_vertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
 
-	GLuint vao2 = 0;
+	// -------------------------------------------------------------------------- //
+	//	EBO - Buffer object	of indices											  //
+	// -------------------------------------------------------------------------- //
+	// generating element array buff;
+	GLuint ebo;
+	glGenBuffers (1, &ebo);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sc->nb_faces_3 * 3) * sizeof(GL_UNSIGNED_INT), sc->face_3_indices, GL_STATIC_DRAW);
+
+
+	
+
+
+	/*GLuint vao2 = 0;
 
 	glGenVertexArrays(1, &vao2);
 
@@ -137,7 +146,8 @@ void	scop(t_scop *sc)
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo2);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);*/
+
 
 	// -------------------------------------------------------------------------- //
 	//	Shaders																	  //
@@ -145,10 +155,10 @@ void	scop(t_scop *sc)
 	// Position shader
 	const char* vertex_shader =
 		"#version 410\n"
-		"in vec3 vp;"
+		"in vec4 vp;"
+		"uniform mat4 translation_matrix;"
 		"void main () {"
-		"  gl_Position = vec4 (vp, 5.0);"
-		"  gl_PointSize = 1.0;"
+		"  gl_Position = translation_matrix * vp;"
 		"}";
 
 	// Color shaders
@@ -171,6 +181,15 @@ void	scop(t_scop *sc)
 	glAttachShader (shader_programme, fs);
 	glAttachShader (shader_programme, vs);
 	glLinkProgram (shader_programme);
+	glUseProgram(shader_programme);
+
+	// setting uniform value
+	GLint uniform_mat = glGetUniformLocation(shader_programme, "translation_matrix");
+	if (uniform_mat != -1)
+	{
+		set_translation_matrix(sc, 0.0, 0.0, 0.0);
+		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_translation[0][0]);
+	}
 
 	// check if shader is compiled and linked;
 	GLint isLinked = 0;
@@ -178,7 +197,8 @@ void	scop(t_scop *sc)
 	if (isLinked == GL_FALSE)
 	{
 		printf("Error: Shader programme NOT linked\n");
-	} else
+	}
+	else
 	{
 		printf("Shader programme linked\n");
 	}
@@ -196,19 +216,21 @@ void	scop(t_scop *sc)
 	while (!glfwWindowShouldClose(sc->window))
 	{
 		// wipe the drawing surface clear
-		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glUseProgram (shader_programme);
-		glBindVertexArray (vao);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glUseProgram(shader_programme);
+		//glBindVertexArray (vao);
 
 		// draw points 0-3 from the currently bound VAO with current in-use shader
-		glDrawArrays (GL_POINTS, 0, sc->nb_vertices * 4);
-
-		glBindVertexArray(vao2);
-		glDrawArrays (GL_TRIANGLES, 0, ((sc->nb_faces_3 * 3) * 3));
+		//glDrawArrays (GL_POINTS, 0, sc->nb_vertices * 4);
+		
+		//glDrawArrays (GL_TRIANGLES, 0, ((sc->nb_faces_3 * 3) * 3));
+		
+		glDrawElements(GL_TRIANGLES, sc->nb_faces_3 * 3, GL_UNSIGNED_INT, NULL);
+		
 		// update other events like input handling 
-		glfwPollEvents ();
+		glfwPollEvents();
 		// put the stuff we've been drawing onto the display
-		glfwSwapBuffers (sc->window);
+		glfwSwapBuffers(sc->window);
 	}
 }
 
@@ -226,6 +248,8 @@ void		data_init(t_scop *sc)
 	sc->nb_materials = 0;
 	sc->itmp = 0;
 	sc->faces_itmp = 0;
+	sc->indices_itmp = 0;
+	init_translation_matrix(sc);
 }
 
 void		allocate_variables(t_scop *sc)
@@ -240,7 +264,12 @@ void		allocate_variables(t_scop *sc)
 		ft_putendl("faces_3 - 3 vertices allocation failed.");
 		exit (-1);
 	}
-	ft_putendl("- vertices and faces_3 variables allocated.");
+	if (!(sc->face_3_indices = (unsigned int *)malloc(sizeof(GL_UNSIGNED_INT) * (sc->nb_faces_3 * 3))))
+	{
+		ft_putendl("faces_3 - indices allocation failed.");
+		exit (-1);
+	}
+	ft_putendl("- obj file variables allocated.");
 }
 
 
