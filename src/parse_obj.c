@@ -79,6 +79,10 @@ int			check_tokens(t_scop *sc)
 	{
 		if (tmp->token_type == error)
 		{
+			printf("token error:\nvalue = %s\nline nb = %d\ncol nb = %d\n",
+				tmp->value,
+				tmp->line_number,
+				tmp->col_number);
 			return (-1);
 		}
 		tmp = tmp->next;
@@ -127,11 +131,11 @@ void		dictionnary_comparison(t_scop *sc)
 	tmp = sc->obj_token_list;
 	while (tmp)
 	{
-		if (tmp->token_type == word)
+		if (tmp->token_type == word && tmp->line_number == 0)
 		{
 			if (!is_word_in_dictionnary(sc, tmp->value))
 			{
-				print_parser_error(tmp, "Unknown word");
+				print_parser_error(tmp, "Unknown word one line start");
 			}
 		}
 		tmp = tmp->next;

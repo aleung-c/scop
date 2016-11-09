@@ -135,9 +135,6 @@ void	scop(t_scop *sc)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sc->nb_faces_3 * 3) * sizeof(GL_UNSIGNED_INT), sc->face_3_indices, GL_STATIC_DRAW);
 
 
-	
-
-
 	/*GLuint vao2 = 0;
 
 	glGenVertexArrays(1, &vao2);
@@ -152,29 +149,16 @@ void	scop(t_scop *sc)
 	// -------------------------------------------------------------------------- //
 	//	Shaders																	  //
 	// -------------------------------------------------------------------------- //
-	// Position shader
-	const char* vertex_shader =
-		"#version 410\n"
-		"in vec4 vp;"
-		"uniform mat4 translation_matrix;"
-		"void main () {"
-		"  gl_Position = translation_matrix * vp;"
-		"}";
-
-	// Color shaders
-	const char* fragment_shader =
-		"#version 410\n"
-		"out vec4 frag_colour;"
-		"void main () {"
-		"  frag_colour = vec4 (1.0, 1.0, 1.0, 1.0);"
-		"}";
+	// Go get Position shader
+	sc->vertex_shader_1 = get_file_content("./shaders/vshader_1.vs");
+	sc->fragment_shader_1 = get_file_content("./shaders/fshader_1.fs");
 
 	// Create shader programme
 	GLuint vs = glCreateShader (GL_VERTEX_SHADER);
-	glShaderSource (vs, 1, &vertex_shader, NULL);
+	glShaderSource (vs, 1, (const char * const *)&sc->vertex_shader_1, NULL);
 	glCompileShader (vs);
 	GLuint fs = glCreateShader (GL_FRAGMENT_SHADER);
-	glShaderSource (fs, 1, &fragment_shader, NULL);
+	glShaderSource (fs, 1, (const char * const *)&sc->fragment_shader_1, NULL);
 	glCompileShader (fs);
 
 	GLuint shader_programme = glCreateProgram ();
@@ -183,12 +167,41 @@ void	scop(t_scop *sc)
 	glLinkProgram (shader_programme);
 	glUseProgram(shader_programme);
 
-	// setting uniform value
-	GLint uniform_mat = glGetUniformLocation(shader_programme, "translation_matrix");
+	// setting uniform values
+	GLint uniform_mat = glGetUniformLocation(shader_programme, "identity_matrix");
 	if (uniform_mat != -1)
 	{
-		set_translation_matrix(sc, 0.0, 0.0, 0.0);
+		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_identity[0][0]);
+	}
+	uniform_mat = glGetUniformLocation(shader_programme, "translation_matrix");
+	if (uniform_mat != -1)
+	{
+		set_translation_matrix(sc, 0.0, 0.1, 0.0);
 		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_translation[0][0]);
+	}
+	uniform_mat = glGetUniformLocation(shader_programme, "scaling_matrix");
+	if (uniform_mat != -1)
+	{
+		set_scaling_matrix(sc, 0.2);
+		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_scaling[0][0]);
+	}
+	uniform_mat = glGetUniformLocation(shader_programme, "rotation_x_matrix");
+	if (uniform_mat != -1)
+	{
+		set_x_rotation_matrix(sc, 0.0);
+		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_x_rotation[0][0]);
+	}
+	uniform_mat = glGetUniformLocation(shader_programme, "rotation_y_matrix");
+	if (uniform_mat != -1)
+	{
+		set_y_rotation_matrix(sc, 0.0);
+		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_y_rotation[0][0]);
+	}
+	uniform_mat = glGetUniformLocation(shader_programme, "rotation_z_matrix");
+	if (uniform_mat != -1)
+	{
+		set_z_rotation_matrix(sc, 0.0);
+		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_z_rotation[0][0]);
 	}
 
 	// check if shader is compiled and linked;
@@ -224,7 +237,6 @@ void	scop(t_scop *sc)
 		//glDrawArrays (GL_POINTS, 0, sc->nb_vertices * 4);
 		
 		//glDrawArrays (GL_TRIANGLES, 0, ((sc->nb_faces_3 * 3) * 3));
-		
 		glDrawElements(GL_TRIANGLES, sc->nb_faces_3 * 3, GL_UNSIGNED_INT, NULL);
 		
 		// update other events like input handling 
@@ -250,6 +262,11 @@ void		data_init(t_scop *sc)
 	sc->faces_itmp = 0;
 	sc->indices_itmp = 0;
 	init_translation_matrix(sc);
+	init_scaling_matrix(sc);
+	init_identity_matrix(sc);
+	init_x_rotation_matrix(sc);
+	init_y_rotation_matrix(sc);
+	init_z_rotation_matrix(sc);
 }
 
 void		allocate_variables(t_scop *sc)
@@ -271,7 +288,6 @@ void		allocate_variables(t_scop *sc)
 	}
 	ft_putendl("- obj file variables allocated.");
 }
-
 
 int		main(int argc, char **argv)
 {

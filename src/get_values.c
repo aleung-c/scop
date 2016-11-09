@@ -34,7 +34,7 @@ void count_values(t_scop *sc)
 				sc->nb_parameter_space_vertices += 1;
 
 			// face handling
-			if (strcmp(token->value, "f"))
+			if (strcmp(token->value, "f") == 0)
 			{
 				sc->nb_faces_3 += 1;
 				inline_i = 0;
@@ -44,6 +44,7 @@ void count_values(t_scop *sc)
 					inline_i++;
 					inline_token = inline_token->next;
 				}
+				//printf("\n");
 				if (inline_i == 3)
 					sc->nb_faces_3 += 1;
 				else if (inline_i == 4)
@@ -61,33 +62,17 @@ void count_values(t_scop *sc)
 	ft_putnbr(line_number);
 	ft_putchar('\n');*/
 
-	ft_putstr("Nb of vertices = ");
-	ft_putnbr(sc->nb_vertices);
-	ft_putchar('\n');
-	ft_putstr("Nb of tex vertices = ");
-	ft_putnbr(sc->nb_texture_vertices);
-	ft_putchar('\n');
-	ft_putstr("Nb of normals vertices = ");
-	ft_putnbr(sc->nb_normals_vertices);
-	ft_putchar('\n');
-	ft_putstr("Nb of parameter space vertices = ");
-	ft_putnbr(sc->nb_parameter_space_vertices);
-	ft_putchar('\n');
-	ft_putstr("Nb of faces 3 = ");
-	ft_putnbr(sc->nb_faces_3);
-	ft_putchar('\n');
-	ft_putstr("Nb of faces 4 = ");
-	ft_putnbr(sc->nb_faces_4);
-	ft_putchar('\n');
-	ft_putstr("Nb of obj = ");
-	ft_putnbr(sc->nb_obj);
-	ft_putchar('\n');
-	ft_putstr("Nb of groups = ");
-	ft_putnbr(sc->nb_groups);
-	ft_putchar('\n');
-	ft_putstr("Nb of materials = ");
-	ft_putnbr(sc->nb_materials);
-	ft_putchar('\n');
+	printf("Nb of vertices = %lu\n", sc->nb_vertices);
+	printf("Nb of tex vertices = %lu\n", sc->nb_texture_vertices);
+	printf("Nb of normals vertices = %lu\n", sc->nb_texture_vertices);
+	printf("Nb of normals vertices = %lu\n", sc->nb_normals_vertices);
+	printf("Nb of parameter space vertices = %lu\n", sc->nb_parameter_space_vertices);
+	printf("Nb of faces 3 = %lu\n", sc->nb_faces_3);
+	printf("Nb of faces 4 = %lu\n", sc->nb_faces_4);
+	printf("Nb of faces more = %lu\n", sc->nb_faces_more);
+	printf("Nb of obj = %lu\n", sc->nb_obj);
+	printf("Nb of groups = %lu\n", sc->nb_groups);
+	printf("Nb of materials = %lu\n", sc->nb_materials);
 	ft_putchar('\n');
 }
 

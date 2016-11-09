@@ -22,6 +22,7 @@
 # include <mlx.h>
 # include <ctype.h>
 # include <regex.h>
+# include <math.h>
 
 // Linking SDL2
 //# include <SDL2/SDL.h>
@@ -63,6 +64,7 @@ typedef enum	e_token_type
 	word,
 	numeric_value,
 	indices,
+	file_name,
 
 	error
 }				s_token_type;
@@ -121,6 +123,14 @@ typedef struct						s_scop
 	float							matrix_identity[4][4];
 	float							matrix_translation[4][4];
 	float							matrix_scaling[4][4];
+
+	float							matrix_x_rotation[4][4];
+	float							matrix_y_rotation[4][4];
+	float							matrix_z_rotation[4][4];
+
+	// stocking shaders
+	char							*vertex_shader_1;
+	char							*fragment_shader_1;
 
 	// events
 	int								escape_pressed;
@@ -182,10 +192,23 @@ void						put_faces_in_var(t_scop *sc, char *line, int position);
 void						init_identity_matrix(t_scop *sc);
 void						init_translation_matrix(t_scop *sc);
 void						set_translation_matrix(t_scop *sc, float x, float y, float z);
+void						init_scaling_matrix(t_scop *sc);
+void						set_scaling_matrix(t_scop *sc, float scale);
 
+
+// rotation matrices
+void						init_x_rotation_matrix(t_scop *sc);
+void						init_y_rotation_matrix(t_scop *sc);
+void						init_z_rotation_matrix(t_scop *sc);
+
+void						set_x_rotation_matrix(t_scop *sc, float rot);
+void						set_y_rotation_matrix(t_scop *sc, float rot);
+void						set_z_rotation_matrix(t_scop *sc, float rot);
 /*
 **	Displaying the object -> glfw and open gl.
 */
+
+char						*get_file_content(char *file_path);
 
 int							initGLFW(t_scop *sc);
 int							initOpenGL(t_scop *sc);

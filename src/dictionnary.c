@@ -20,6 +20,13 @@ void		init_dictionnaries(t_scop *sc)
 	add_word_to_dictionnary(sc, "vn");
 	add_word_to_dictionnary(sc, "f");
 	add_word_to_dictionnary(sc, "o");
+	add_word_to_dictionnary(sc, "mtllib");
+	add_word_to_dictionnary(sc, "Cube");
+	add_word_to_dictionnary(sc, "usemtl");
+	add_word_to_dictionnary(sc, "Material");
+	add_word_to_dictionnary(sc, "s");
+	add_word_to_dictionnary(sc, "off");
+	add_word_to_dictionnary(sc, "none");
 }
 
 void		add_word_to_dictionnary(t_scop *sc, char *word)

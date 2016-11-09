@@ -22,13 +22,15 @@ src/dictionnary.c \
 src/get_values.c \
 src/matrix_identity.c \
 src/matrix_translation.c \
-src/matrix_scaling.c
+src/matrix_scaling.c \
+src/matrix_rotation.c \
+src/shader_handling.c
 
 OBJ = $(SRC:.c=.o)
 
 LIB = ./libft/
 
-GL = -I/Library/Frameworks/OpenGL.framework/Headers -framework OpenGL 
+GL = -I/Library/Frameworks/OpenGL.framework/Headers -framework OpenGL
 GLFW = -framework Cocoa -framework CoreVideo -framework IOKit -framework GLUT -L./glfw-3.2.1/src -lglfw3
 
 SDL2 = -lmlx -I/Library/Frameworks/OpenGL.framework/Headers -framework OpenGL -I/Library/Frameworks/SDL2.framework/Headers -framework SDL2 -framework AppKit

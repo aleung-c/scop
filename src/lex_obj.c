@@ -69,6 +69,10 @@ void set_token_type(t_token *cur_token, char *token_str)
 		//printf("match word\n");
 		cur_token->token_type = word;
 	}
+	else if (regex_match(token_str, "^[a-zA-Z0-9_,\\r\\n\\t\\f\\v-]+\\.[A-Za-z]+$"))
+	{
+		cur_token->token_type = file_name;
+	}
 	else if (regex_match(token_str, "^[-]?[0-9]*\\.?[0-9]*$"))
 	{
 		//printf("match num val\n");
