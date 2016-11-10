@@ -49,7 +49,7 @@ int initOpenGL(t_scop *sc)
 	printf ("\nRenderer: %s\n", renderer);
 	printf ("OpenGL version supported %s\n", version);
 
-	glEnable(GL_PROGRAM_POINT_SIZE);
+	//glEnable(GL_PROGRAM_POINT_SIZE);
 	glEnable(GL_DEPTH_TEST);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	
@@ -71,38 +71,6 @@ void	scop(t_scop *sc)
 		ft_putendl("Initialisation Failed. Exiting ...");
 		exit (-1);
 	}
-	
-	// -------------------------------------------------------------------------- //
-	//	Create points for objects												  //
-	// -------------------------------------------------------------------------- //
-	/*float points[] = {
-		0.0f,  0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f
-	};*/
-		/*int i;
-		for ( i = 0; i < sc->nb_vertices; i++)
-		{
-			printf("v %f ", sc->obj_vertices[i]);
-			i++;
-			printf(" %f ", sc->obj_vertices[i]);
-			i++;
-			printf(" %f \n", sc->obj_vertices[i]);
-			if (i > 10)
-				sleep(1);
-
-		}
-		printf("i = %d\n", i);*/
-
-
-		/*int j = 0;
-		while (j < sc->nb_vertices)
-		{
-			printf("v %f %f %f \n", sc->obj_vertices[j], sc->obj_vertices[j + 1], sc->obj_vertices[j + 2]);
-			j += 2;
-			sleep(1);
-		}*/
-
 
 	// -------------------------------------------------------------------------- //
 	//	VAO - Vertex Array object												  //
@@ -145,7 +113,6 @@ void	scop(t_scop *sc)
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);*/
 
-
 	// -------------------------------------------------------------------------- //
 	//	Shaders																	  //
 	// -------------------------------------------------------------------------- //
@@ -167,16 +134,16 @@ void	scop(t_scop *sc)
 	glLinkProgram (shader_programme);
 	glUseProgram(shader_programme);
 
-	// setting uniform values
+	// setting uniform values for model
 	GLint uniform_mat = glGetUniformLocation(shader_programme, "identity_matrix");
 	if (uniform_mat != -1)
 	{
 		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_identity[0][0]);
 	}
-	uniform_mat = glGetUniformLocation(shader_programme, "translation_matrix");
+	uniform_mat = glGetUniformLocation(shader_programme, "model_translation_matrix");
 	if (uniform_mat != -1)
 	{
-		set_translation_matrix(sc, 0.0, 0.1, 0.0);
+		set_translation_matrix(sc, 0.0, 0.0, -1.10);
 		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_translation[0][0]);
 	}
 	uniform_mat = glGetUniformLocation(shader_programme, "scaling_matrix");
@@ -203,6 +170,28 @@ void	scop(t_scop *sc)
 		set_z_rotation_matrix(sc, 0.0);
 		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_z_rotation[0][0]);
 	}
+	
+	// setting uniform values for view (camera pos)
+	uniform_mat = glGetUniformLocation(shader_programme, "view_translation_matrix");
+	if (uniform_mat != -1)
+	{
+		set_translation_matrix(sc, -sc->camera_pos.x, -sc->camera_pos.y, -sc->camera_pos.z); // setting camera pos.
+		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_translation[0][0]);
+	}
+
+	uniform_mat = glGetUniformLocation(shader_programme, "view_orientation_matrix");
+	if (uniform_mat != -1)
+	{
+		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_view_orientation[0][0]);
+	}
+	
+	// setting uniform value for projection
+	uniform_mat = glGetUniformLocation(shader_programme, "perspective_projection_matrix");
+	if (uniform_mat != -1)
+	{
+		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_perspective_projection[0][0]);
+	}
+
 
 	// check if shader is compiled and linked;
 	GLint isLinked = 0;
@@ -226,11 +215,19 @@ void	scop(t_scop *sc)
 	// -------------------------------------------------------------------------- //
 	//	DRAWING																	  //
 	// -------------------------------------------------------------------------- //
+	float i = 0.0;
 	while (!glfwWindowShouldClose(sc->window))
 	{
 		// wipe the drawing surface clear
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glUseProgram(shader_programme);
+		i += 0.005;
+		uniform_mat = glGetUniformLocation(shader_programme, "rotation_y_matrix");
+		if (uniform_mat != -1)
+		{
+			set_y_rotation_matrix(sc, i);
+			glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_y_rotation[0][0]);
+		}
 		//glBindVertexArray (vao);
 
 		// draw points 0-3 from the currently bound VAO with current in-use shader
@@ -267,6 +264,22 @@ void		data_init(t_scop *sc)
 	init_x_rotation_matrix(sc);
 	init_y_rotation_matrix(sc);
 	init_z_rotation_matrix(sc);
+
+	// scene settings
+	sc->camera_pos.x = 0.0;
+	sc->camera_pos.y = 0.0;
+	sc->camera_pos.z = 0.0;
+	sc->camera_lookat.x = 0.0;
+	sc->camera_lookat.y = 0.0;
+	sc->camera_lookat.z = 1.0;
+	init_view_orientation_matrix(sc);
+	init_view_translation_matrix(sc);
+	sc->camera_near = 0.1;
+	sc->camera_far = 100.0;
+	sc->camera_fov = 60.0;
+	sc->camera_aspect = 1.33; // 4/3, 16/9, etc 1 = 4/4
+	init_perspective_projection_matrix(sc);
+
 }
 
 void		allocate_variables(t_scop *sc)

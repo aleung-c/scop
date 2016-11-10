@@ -132,8 +132,9 @@ void get_values(t_scop *sc)
 				while (inline_token && inline_token->line_number == token->line_number)
 				{
 					// get the indice 1
-					sc->face_3_indices[sc->indices_itmp] = strtol(inline_token->value, NULL, 0);
+					sc->face_3_indices[sc->indices_itmp] = strtol(inline_token->value, NULL, 10);
 					sc->indices_itmp += 1;
+
 
 
 					// one indice token => 3 float from the same vertex.

@@ -24,7 +24,10 @@ src/matrix_identity.c \
 src/matrix_translation.c \
 src/matrix_scaling.c \
 src/matrix_rotation.c \
-src/shader_handling.c
+src/matrix_view.c \
+src/matrix_projection.c \
+src/shader_handling.c \
+src/vector_utils.c
 
 OBJ = $(SRC:.c=.o)
 
