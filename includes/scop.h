@@ -93,6 +93,18 @@ typedef	struct						s_vec3
 	float							z;
 }									t_vec3;
 
+typedef struct						s_bmp_texture
+{
+	// Data read from the header of the BMP file
+	unsigned char					header[54]; // Each BMP file begins by a 54-bytes header
+	unsigned int					data_pos;     // Position in the file where the actual data begins
+	unsigned int					width;
+	unsigned int					height;
+	unsigned int					image_size;   // = width*height*3
+	// Actual RGB data
+	unsigned char					*data;
+}									t_bmp_texture;
+
 typedef struct						s_scop
 {
 	GLFWwindow						*window;
@@ -103,6 +115,8 @@ typedef struct						s_scop
 	// File Lexer / parser
 	FILE							*fp;
 	t_token							*obj_token_list;
+	t_token							*tmp;
+
 	// file parsing datas
 	t_dictionnary_word				*word_dictionnary_list;
 	unsigned long int				nb_vertices; 					// v
@@ -116,15 +130,23 @@ typedef struct						s_scop
 	unsigned long int				nb_groups;
 	unsigned long int				nb_materials;
 
+	t_token							*inline_token;
+	int								inline_i;
+
 	// actual variables
 	float							*obj_vertices;
 	int								itmp;
 
-	unsigned int					*face_3_indices;
+	unsigned int					*face_indices;
 	int								indices_itmp;
 
-	float							*obj_faces_3;
-	int								faces_itmp;
+	float							*obj_normals;
+	int								normals_itmp;
+
+	float							*obj_tex_coords;
+	int								tex_coord_itmp;
+
+	t_bmp_texture					default_texture;
 
 	// matrix handling
 	float							matrix_identity[4][4];
@@ -158,6 +180,11 @@ typedef struct						s_scop
 	float							camera_fov;
 	float							camera_aspect;
 
+	t_vec3							bounding_box_center;
+	t_vec3							bounding_box_max;
+	t_vec3							bounding_box_min;
+
+
 
 	// events
 	int								escape_pressed;
@@ -174,7 +201,6 @@ typedef struct						s_scop
 */
 int							get_obj(t_scop *sc, char *arg);
 
-void						lex_obj(t_scop *sc);
 void						lex_obj_line(t_scop *sc, char *line, int line_number);
 void						set_token_type(t_token *cur_token, char *token_str);
 void						add_token_to_list(t_scop *sc, t_token *obj_token_list, t_token *cur_token);
@@ -201,19 +227,15 @@ void						data_init(t_scop *sc);
 
 void						count_values(t_scop *sc);
 void						get_values(t_scop *sc);
+void						fill_vertex(t_scop *sc, t_token *token);
+void						fill_tex_coord(t_scop *sc, t_token *token);
+void						fill_normals(t_scop *sc, t_token *token);
+void						fill_face(t_scop *sc, t_token *token);
 
-// V Dropped. to delete. V
-void						parse_pass1(t_scop *sc, FILE *fp);
-// V Dropped. to delete. V
-void						parse_pass2(t_scop *sc, FILE *fp);
-
-//void						parse_line_counting(t_scop *sc, char *line);
-void						parse_line_filling(t_scop *sc, char *line);
+void						set_bounding_box_limits(t_scop *sc);
+void						set_bounding_box_center(t_scop *sc);
 
 void						allocate_variables(t_scop *sc);
-
-void						put_vertex_in_var(t_scop *sc, char *line, int position);
-void						put_faces_in_var(t_scop *sc, char *line, int position);
 
 // matrix handling
 //	model matrices
@@ -239,6 +261,7 @@ void						init_view_translation_matrix(t_scop *sc);
 // projection matrices
 void						init_perspective_projection_matrix(t_scop *sc);
 
+void						load_textures(t_scop *sc);
 
 /*
 **	Displaying the object -> glfw and open gl.

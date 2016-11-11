@@ -29,7 +29,6 @@ int		initGLFW(t_scop *sc)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	sc->window = glfwCreateWindow(640, 480, "Hello Triangle", NULL, NULL);
-
 	if (!sc->window)
 	{
 		ft_putendl("ERROR: could not open window with GLFW3");
@@ -51,6 +50,8 @@ int initOpenGL(t_scop *sc)
 
 	//glEnable(GL_PROGRAM_POINT_SIZE);
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	//glEnable(GL_CULL_FACE);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	
 
@@ -100,7 +101,7 @@ void	scop(t_scop *sc)
 	glGenBuffers (1, &ebo);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sc->nb_faces_3 * 3) * sizeof(GL_UNSIGNED_INT), sc->face_3_indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sc->nb_faces_3 * 3 + sc->nb_faces_4 * 3) * sizeof(GL_UNSIGNED_INT), &sc->face_indices[0], GL_STATIC_DRAW);
 
 
 	/*GLuint vao2 = 0;
@@ -112,6 +113,24 @@ void	scop(t_scop *sc)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo2);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);*/
+
+	// -------------------------------------------------------------------------- //
+	//	Texture loading in the engine.											  //
+	// -------------------------------------------------------------------------- //
+	// Create one OpenGL texture
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+
+	// "Bind" the newly created texture : all future texture functions will modify this texture
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	// Give the image to OpenGL
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sc->default_texture.width, sc->default_texture.height, 0,
+		GL_BGR, GL_UNSIGNED_BYTE, sc->default_texture.data);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	// TODO : continuer a implementer les textures. buffer uv needed.
 
 	// -------------------------------------------------------------------------- //
 	//	Shaders																	  //
@@ -140,6 +159,16 @@ void	scop(t_scop *sc)
 	{
 		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_identity[0][0]);
 	}
+	uniform_mat = glGetUniformLocation(shader_programme, "model_recenter_translation_matrix");
+	if (uniform_mat != -1)
+	{
+		set_translation_matrix(sc,
+			-sc->bounding_box_center.x,
+			-sc->bounding_box_center.y,
+			-sc->bounding_box_center.z);
+		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_translation[0][0]);
+	}
+
 	uniform_mat = glGetUniformLocation(shader_programme, "model_translation_matrix");
 	if (uniform_mat != -1)
 	{
@@ -221,6 +250,8 @@ void	scop(t_scop *sc)
 		// wipe the drawing surface clear
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glUseProgram(shader_programme);
+
+		// change val to rotate model.
 		i += 0.005;
 		uniform_mat = glGetUniformLocation(shader_programme, "rotation_y_matrix");
 		if (uniform_mat != -1)
@@ -234,7 +265,7 @@ void	scop(t_scop *sc)
 		//glDrawArrays (GL_POINTS, 0, sc->nb_vertices * 4);
 		
 		//glDrawArrays (GL_TRIANGLES, 0, ((sc->nb_faces_3 * 3) * 3));
-		glDrawElements(GL_TRIANGLES, sc->nb_faces_3 * 3, GL_UNSIGNED_INT, NULL);
+		glDrawElements(GL_TRIANGLES, sc->nb_faces_3 * 3, GL_UNSIGNED_INT, (void*)0);
 		
 		// update other events like input handling 
 		glfwPollEvents();
@@ -256,8 +287,8 @@ void		data_init(t_scop *sc)
 	sc->nb_groups = 0;
 	sc->nb_materials = 0;
 	sc->itmp = 0;
-	sc->faces_itmp = 0;
 	sc->indices_itmp = 0;
+	sc->normals_itmp = 0;
 	init_translation_matrix(sc);
 	init_scaling_matrix(sc);
 	init_identity_matrix(sc);
@@ -279,7 +310,9 @@ void		data_init(t_scop *sc)
 	sc->camera_fov = 60.0;
 	sc->camera_aspect = 1.33; // 4/3, 16/9, etc 1 = 4/4
 	init_perspective_projection_matrix(sc);
-
+	set_vec(&sc->bounding_box_center, 0.0, 0.0, 0.0);
+	set_vec(&sc->bounding_box_max, 0.0, 0.0, 0.0);
+	set_vec(&sc->bounding_box_min, 0.0, 0.0, 0.0);
 }
 
 void		allocate_variables(t_scop *sc)
@@ -289,14 +322,19 @@ void		allocate_variables(t_scop *sc)
 		ft_putendl("vertices allocation failed.");
 		exit (-1);
 	}
-	if (!(sc->obj_faces_3 = (float *)malloc(sizeof(float) * (sc->nb_faces_3 * 3) * 3)))
+	if (!(sc->face_indices = (unsigned int *)malloc(sizeof(GL_UNSIGNED_INT) * (sc->nb_faces_3 * 3 + sc->nb_faces_4 * 3))))
 	{
-		ft_putendl("faces_3 - 3 vertices allocation failed.");
+		ft_putendl("faces - indices allocation failed.");
 		exit (-1);
 	}
-	if (!(sc->face_3_indices = (unsigned int *)malloc(sizeof(GL_UNSIGNED_INT) * (sc->nb_faces_3 * 3))))
+	if (!(sc->obj_normals = (float *)malloc(sizeof(float) * sc->nb_normals_vertices * 3)))
 	{
-		ft_putendl("faces_3 - indices allocation failed.");
+		ft_putendl("vertices allocation failed.");
+		exit (-1);
+	}
+	if (!(sc->obj_tex_coords = (float *)malloc(sizeof(float) * sc->nb_texture_vertices * 2)))
+	{
+		ft_putendl("vertices allocation failed.");
 		exit (-1);
 	}
 	ft_putendl("- obj file variables allocated.");
@@ -311,6 +349,7 @@ int		main(int argc, char **argv)
 		if (get_obj(&sc, argv[1]) == 0) // open file and fill chained list of tokens(lexer).
 		{
 			data_init(&sc); // set all values to zero;
+			load_textures(&sc);
 			init_dictionnaries(&sc); // init dictionnaries with authorised obj words.
 			parse_obj(&sc); // parse the obj: are these lines corrects ?
 			count_values(&sc); // has to count for mallocating.

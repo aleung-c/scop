@@ -12,31 +12,6 @@
 
 #include "../includes/scop.h"
 
-// UNUSED -> Pointer problems in sub fonction. lex is now directly done in Get obj with lex_obj_line.
-void						lex_obj(t_scop *sc)
-{
-	char			*line;
-	char			*line_cpy;
-	int				line_number;
-
-	line_number = 0;
-	//line = strtok(sc->file_str, "\n");
-	// for each line
-	while (line != NULL)
-	{
-		printf("%s\n", line);
-		line_cpy = malloc(sizeof(char) * strlen(line));
-		line_cpy = strcpy(line_cpy, line);
-		printf("%s\n", line_cpy);
-		//lex_obj_line(sc, line_cpy);
-		line = strtok(NULL, "\n");
-		line_number++;
-		free(line_cpy);
-	}
-	//printf("file lexing done \n");
-	return;
-}
-
 // lets cut the line into tokens.
 void lex_obj_line(t_scop *sc, char *line, int line_number)
 {
@@ -59,7 +34,6 @@ void lex_obj_line(t_scop *sc, char *line, int line_number)
 		token_str = strtok(NULL, " \t\n");
 		col_number++;
 	}
-
 }
 
 void set_token_type(t_token *cur_token, char *token_str)
@@ -102,13 +76,12 @@ int			regex_match(char *string_to_search, char *regex_str)
 	int				err;
 	int				match;
 	regex_t			regex;
-	char			msgbuf[100];
 
 	// compile regex
 	err = regcomp(&regex, regex_str, REG_NOSUB | REG_EXTENDED);
 	if (err)
 	{
-		fprintf(stderr, "Could not compile regex\n");
+		printf("Could not compile regex.\n");
 		exit(1);
 	}
 	else
@@ -127,8 +100,7 @@ int			regex_match(char *string_to_search, char *regex_str)
 		}
 		else
 		{
-			regerror(match, &regex, msgbuf, sizeof(msgbuf));
-			fprintf(stderr, "Regex match failed: %s\n", msgbuf);
+			fprintf(stderr, "Regex match failed.\n");
 			regfree(&regex);
 			exit(1);
 		}
@@ -138,8 +110,6 @@ int			regex_match(char *string_to_search, char *regex_str)
 
 void add_token_to_list(t_scop *sc, t_token *obj_token_list, t_token *cur_token)
 {
-	t_token *tmp;
-
 	cur_token->next = NULL;
 	if (obj_token_list == NULL)
 	{
@@ -148,12 +118,12 @@ void add_token_to_list(t_scop *sc, t_token *obj_token_list, t_token *cur_token)
 	}
 	else
 	{
-		tmp = sc->obj_token_list;
-		while (tmp->next)
+		sc->tmp = sc->obj_token_list;
+		while (sc->tmp->next)
 		{
-			tmp = tmp->next;
+			sc->tmp = sc->tmp->next;
 		}
-		tmp->next = cur_token;
+		sc->tmp->next = cur_token;
 		return ;
 	}
 }

@@ -15,7 +15,6 @@
 void count_values(t_scop *sc)
 {
 	t_token		*token;
-	t_token		*inline_token;
 	int			inline_i;
 
 	inline_i = 0;
@@ -24,25 +23,24 @@ void count_values(t_scop *sc)
 	{
 		if (token->col_number == 0)
 		{
-			if ((strcmp(token->value, "v") == 0))
+			if (!strcmp(token->value, "v"))
 				sc->nb_vertices += 1;
-			if ((strcmp(token->value, "vt") == 0))
+			else if (!strcmp(token->value, "vt"))
 				sc->nb_texture_vertices += 1;
-			if ((strcmp(token->value, "vn") == 0))
+			else if (!strcmp(token->value, "vn"))
 				sc->nb_normals_vertices += 1;
-			if ((strcmp(token->value, "vp") == 0))
+			else if (!strcmp(token->value, "vp"))
 				sc->nb_parameter_space_vertices += 1;
-
 			// face handling
-			if (strcmp(token->value, "f") == 0)
+			else if (strcmp(token->value, "f") == 0)
 			{
 				sc->nb_faces_3 += 1;
 				inline_i = 0;
-				inline_token = token->next;
-				while (inline_token && inline_token->line_number == token->line_number)
+				sc->inline_token = token->next;
+				while (sc->inline_token && sc->inline_token->line_number == token->line_number)
 				{
 					inline_i++;
-					inline_token = inline_token->next;
+					sc->inline_token = sc->inline_token->next;
 				}
 				//printf("\n");
 				if (inline_i == 3)
@@ -58,9 +56,6 @@ void count_values(t_scop *sc)
 
 	ft_putstr(KGRN "Object file datas:" KRESET);
 	ft_putchar('\n');
-	/*ft_putstr("total nb of line = ");
-	ft_putnbr(line_number);
-	ft_putchar('\n');*/
 
 	printf("Nb of vertices = %lu\n", sc->nb_vertices);
 	printf("Nb of tex vertices = %lu\n", sc->nb_texture_vertices);
@@ -82,76 +77,153 @@ void count_values(t_scop *sc)
 void get_values(t_scop *sc)
 {
 	t_token		*token;
-	t_token		*inline_token;
-	int			inline_i;
 
 	token = sc->obj_token_list;
 	while (token)
 	{
-		// --------------------------------------------	//
-		// filling a vertex								//
-		// --------------------------------------------	//
-		if (strcmp(token->value, "v") == 0)
+		if (!strcmp(token->value, "v"))
 		{
-			inline_token = token->next;
-			inline_i = 0;
-			while (inline_token->line_number == token->line_number)
-			{
-				sc->obj_vertices[sc->itmp] = strtof(&(*inline_token->value), &inline_token->value);
-				inline_token = inline_token->next;
-				sc->itmp++;
-				inline_i++;
-			}
-			if (inline_i == 3)
-			{
-				// add the fourth 1.0;
-				sc->obj_vertices[sc->itmp] = 1.0;
-				sc->itmp++;
-			}
+			fill_vertex(sc, token);
 		}
-		// --------------------------------------------	//
-		// filling a face								//
-		// --------------------------------------------	//
-		// TODO: take the x/x/x into account.
-		if (strcmp(token->value, "f") == 0)
+		else if (!strcmp(token->value, "f"))
 		{
-			inline_i = 0;
-			inline_token = token->next;
-			// count nb of indices
-			while (inline_token && inline_token->line_number == token->line_number)
-			{
-				inline_i++;
-				inline_token = inline_token->next;
-			}
-
-			// Filling a face_3
-			if (inline_i == 3)
-			{
-				inline_token = token->next;
-				inline_i = 0;
-				while (inline_token && inline_token->line_number == token->line_number)
-				{
-					// get the indice 1
-					sc->face_3_indices[sc->indices_itmp] = strtol(inline_token->value, NULL, 10);
-					sc->indices_itmp += 1;
-
-
-
-					// one indice token => 3 float from the same vertex.
-					sc->obj_faces_3[sc->faces_itmp] = sc->obj_vertices[(strtol(&(*(inline_token->value)), NULL, 10)) * 3];
-					sc->faces_itmp += 1;
-					sc->obj_faces_3[sc->faces_itmp] = sc->obj_vertices[((strtol(&(*(inline_token->value)), NULL, 10)) * 3) + 1];
-					sc->faces_itmp += 1;
-					sc->obj_faces_3[sc->faces_itmp] = sc->obj_vertices[((strtol(&(*(inline_token->value)), NULL, 10)) * 3) + 2];
-					sc->faces_itmp += 1;
-
-					// moving to next;
-					inline_token = inline_token->next;
-					inline_i++;
-				}
-			}
-			
+			fill_face(sc, token);
+		}
+		else if (!strcmp(token->value, "vt"))
+		{
+			fill_tex_coord(sc, token);
+		}
+		else if (!strcmp(token->value, "vn"))
+		{
+			fill_normals(sc, token);
 		}
 		token = token->next;
+	}
+	set_bounding_box_center(sc);
+}
+
+void						fill_vertex(t_scop *sc, t_token *token)
+{
+	sc->inline_token = token->next;
+	sc->inline_i = 0;
+	while (sc->inline_token && sc->inline_token->line_number == token->line_number)
+	{
+		sc->obj_vertices[sc->itmp] = strtof(&(*sc->inline_token->value), &sc->inline_token->value);
+		set_bounding_box_limits(sc);
+		
+		sc->itmp++;
+		sc->inline_token = sc->inline_token->next;
+		sc->inline_i++;
+	}
+	if (sc->inline_i == 3)
+	{
+		// add the fourth 1.0;
+		sc->obj_vertices[sc->itmp] = 1.0;
+		sc->itmp++;
+	}
+}
+
+void					set_bounding_box_limits(t_scop *sc)
+{
+	if (sc->inline_i == 0)
+	{
+		// x pos;
+		if (sc->obj_vertices[sc->itmp] > sc->bounding_box_max.x)
+			sc->bounding_box_max.x = sc->obj_vertices[sc->itmp];
+		if (sc->obj_vertices[sc->itmp] < sc->bounding_box_min.x)
+			sc->bounding_box_min.x = sc->obj_vertices[sc->itmp];
+	}
+	else if (sc->inline_i == 1)
+	{
+		// y pos;
+		if (sc->obj_vertices[sc->itmp] > sc->bounding_box_max.y)
+			sc->bounding_box_max.y = sc->obj_vertices[sc->itmp];
+		if (sc->obj_vertices[sc->itmp] < sc->bounding_box_min.y)
+			sc->bounding_box_min.y = sc->obj_vertices[sc->itmp];
+	}
+	else if (sc->inline_i == 2)
+	{
+		// z pos;
+		if (sc->obj_vertices[sc->itmp] > sc->bounding_box_max.z)
+			sc->bounding_box_max.z = sc->obj_vertices[sc->itmp];
+		if (sc->obj_vertices[sc->itmp] < sc->bounding_box_min.z)
+			sc->bounding_box_min.z = sc->obj_vertices[sc->itmp];
+	}
+}
+
+void					set_bounding_box_center(t_scop *sc)
+{
+	sc->bounding_box_center.x = (sc->bounding_box_min.x + sc->bounding_box_max.x) / 2;
+	sc->bounding_box_center.y = (sc->bounding_box_min.y + sc->bounding_box_max.y) / 2;
+	sc->bounding_box_center.z = (sc->bounding_box_min.z + sc->bounding_box_max.z) / 2;
+}
+
+void						fill_tex_coord(t_scop *sc, t_token *token)
+{
+	sc->inline_token = token->next;
+	while (sc->inline_token && sc->inline_token->line_number == token->line_number)
+	{
+		sc->obj_tex_coords[sc->tex_coord_itmp] = strtof(&(*sc->inline_token->value), &sc->inline_token->value);
+		sc->tex_coord_itmp++;
+		sc->inline_token = sc->inline_token->next;
+	}
+}
+
+void						fill_normals(t_scop *sc, t_token *token)
+{
+	sc->inline_token = token->next;
+	while (sc->inline_token && sc->inline_token->line_number == token->line_number)
+	{
+		sc->obj_normals[sc->normals_itmp] = strtof(&(*sc->inline_token->value), &sc->inline_token->value);
+		sc->normals_itmp++;
+		sc->inline_token = sc->inline_token->next;
+	}
+}
+
+void						fill_face(t_scop *sc, t_token *token)
+{
+	// TODO: take the x/x/x into account.
+	sc->inline_i = 0;
+	sc->inline_token = token->next;
+	// count nb of indices
+	while (sc->inline_token && sc->inline_token->line_number == token->line_number)
+	{
+		//printf("%s ", sc->inline_token->value);
+		sc->inline_i++;
+		sc->inline_token = sc->inline_token->next;
+	}
+	//printf("\n");
+
+	// Filling a face_3
+	if (sc->inline_i == 3)
+	{
+		sc->inline_token = token->next;
+		while (sc->inline_token && sc->inline_token->line_number == token->line_number)
+		{
+			// get the indice 1
+			sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->value, NULL, 10) - 1; // -1 cause indices start at 1...
+			sc->indices_itmp += 1;
+
+			// moving to next;
+			sc->inline_token = sc->inline_token->next;
+		}
+	}
+	// Filling a face_4 - converting it into a triangle.
+	if (sc->inline_i == 4)
+	{
+		sc->inline_token = token->next;
+		sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->value, NULL, 10) - 1; // [0]
+		sc->indices_itmp++;
+		sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->next->value, NULL, 10) - 1; // [1]
+		sc->indices_itmp++;
+		sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->next->next->value, NULL, 10) - 1; // [2]
+		sc->indices_itmp++;
+
+		sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->next->next->next->value, NULL, 10) - 1; // [3]
+		sc->indices_itmp++;
+		sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->next->next->value, NULL, 10) - 1; // [2]
+		sc->indices_itmp++;
+		sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->value, NULL, 10) - 1; // [0]
+		sc->indices_itmp++;
 	}
 }
