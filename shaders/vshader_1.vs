@@ -17,8 +17,11 @@ uniform mat4	view_orientation_matrix;
 // projection matrices
 uniform mat4	perspective_projection_matrix;
 
+out vec4		vertex_position;
+
 void main ()
 {
+	// set MVP
 	mat4	model_matrice =
 		model_translation_matrix * 
 		rotation_x_matrix * rotation_y_matrix * rotation_z_matrix * 
@@ -27,4 +30,7 @@ void main ()
 	mat4	view_matrice = view_orientation_matrix * view_translation_matrix;
 
 	gl_Position = perspective_projection_matrix * view_matrice * model_matrice * vp;
+
+	// set final vertex pos;
+	vertex_position = gl_Position;
 }

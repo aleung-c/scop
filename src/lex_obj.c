@@ -108,13 +108,13 @@ int			regex_match(char *string_to_search, char *regex_str)
 	return (0);
 }
 
-void add_token_to_list(t_scop *sc, t_token *obj_token_list, t_token *cur_token)
+void		add_token_to_list(t_scop *sc, t_token *obj_token_list, t_token *cur_token)
 {
 	cur_token->next = NULL;
 	if (obj_token_list == NULL)
 	{
 		sc->obj_token_list = cur_token;
-		return ;		
+		return ;
 	}
 	else
 	{

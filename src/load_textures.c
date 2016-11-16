@@ -17,7 +17,7 @@ void		load_textures(t_scop *sc)
 	// Open the file
 	FILE	*file;
 
-	file = fopen("resources/checker_texture.bmp","rb");
+	file = fopen("resources/water_texture.bmp","rb");
 	if (!file)
 	{
 		printf("Image could not be opened\n");

@@ -105,6 +105,14 @@ typedef struct						s_bmp_texture
 	unsigned char					*data;
 }									t_bmp_texture;
 
+typedef struct						s_color
+{
+	float							r;
+	float							g;
+	float							b;
+	float							a;
+}									t_color;
+
 typedef struct						s_scop
 {
 	GLFWwindow						*window;
@@ -140,10 +148,10 @@ typedef struct						s_scop
 	unsigned int					*face_indices;
 	int								indices_itmp;
 
-	float							*obj_normals;
+	float							*obj_normals; // vn
 	int								normals_itmp;
 
-	float							*obj_tex_coords;
+	float							*obj_tex_coords; // vt
 	int								tex_coord_itmp;
 
 	t_bmp_texture					default_texture;
@@ -179,6 +187,8 @@ typedef struct						s_scop
 	float							camera_bottom;
 	float							camera_fov;
 	float							camera_aspect;
+
+	t_vec3							light_pos;
 
 	t_vec3							bounding_box_center;
 	t_vec3							bounding_box_max;
@@ -231,6 +241,8 @@ void						fill_vertex(t_scop *sc, t_token *token);
 void						fill_tex_coord(t_scop *sc, t_token *token);
 void						fill_normals(t_scop *sc, t_token *token);
 void						fill_face(t_scop *sc, t_token *token);
+void						fill_face3(t_scop *sc, t_token *token);
+void						fill_face4(t_scop *sc, t_token *token);
 
 void						set_bounding_box_limits(t_scop *sc);
 void						set_bounding_box_center(t_scop *sc);
@@ -282,5 +294,7 @@ t_vec3					vec_sub(t_vec3 v1, t_vec3 v2);
 t_vec3					vec_cross(t_vec3 v1, t_vec3 v2);
 float					vec_magnitude(t_vec3 v);
 float					vec_dot_product(t_vec3 v1, t_vec3 v2);
+t_color					create_color(float r, float g, float b, float a);
+t_color					set_color(t_color c, float r, float g, float b, float a);
 
 #endif

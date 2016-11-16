@@ -28,7 +28,9 @@ src/matrix_view.c \
 src/matrix_projection.c \
 src/shader_handling.c \
 src/vector_utils.c \
-src/load_textures.c
+src/load_textures.c \
+src/color.c \
+src/fill_values.c
 
 OBJ = $(SRC:.c=.o)
 

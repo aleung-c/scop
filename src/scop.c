@@ -53,7 +53,8 @@ int initOpenGL(t_scop *sc)
 	glDepthFunc(GL_LESS);
 	//glEnable(GL_CULL_FACE);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	
+	//glEnable(GL_LIGHTING);	// Active l'éclairage
+ 	//glEnable(GL_LIGHT0);	// Allume la lumière n°1
 
 	#ifndef __APPLE__
 	glewExperimental = GL_TRUE;
@@ -101,7 +102,7 @@ void	scop(t_scop *sc)
 	glGenBuffers (1, &ebo);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sc->nb_faces_3 * 3 + sc->nb_faces_4 * 3) * sizeof(GL_UNSIGNED_INT), &sc->face_indices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sc->nb_faces_3 * 3 + (sc->nb_faces_4 * 2) * 3) * sizeof(GL_UNSIGNED_INT), &sc->face_indices[0], GL_STATIC_DRAW);
 
 
 	/*GLuint vao2 = 0;
@@ -114,23 +115,7 @@ void	scop(t_scop *sc)
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);*/
 
-	// -------------------------------------------------------------------------- //
-	//	Texture loading in the engine.											  //
-	// -------------------------------------------------------------------------- //
-	// Create one OpenGL texture
-	GLuint textureID;
-	glGenTextures(1, &textureID);
-
-	// "Bind" the newly created texture : all future texture functions will modify this texture
-	glBindTexture(GL_TEXTURE_2D, textureID);
-
-	// Give the image to OpenGL
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sc->default_texture.width, sc->default_texture.height, 0,
-		GL_BGR, GL_UNSIGNED_BYTE, sc->default_texture.data);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	// TODO : continuer a implementer les textures. buffer uv needed.
+	
 
 	// -------------------------------------------------------------------------- //
 	//	Shaders																	  //
@@ -221,7 +206,38 @@ void	scop(t_scop *sc)
 		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_perspective_projection[0][0]);
 	}
 
+	// -------------------------------------------------------------------------- //
+	//	Texture loading in the engine.											  //
+	// -------------------------------------------------------------------------- //
+	// Create one OpenGL texture
+	GLuint textureID;
+	glGenTextures(1, &textureID);
 
+	// "Bind" the newly created texture : all future texture functions will modify this texture
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	// Give the image to OpenGL
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sc->default_texture.width, sc->default_texture.height, 0,
+		GL_BGR, GL_UNSIGNED_BYTE, sc->default_texture.data);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	
+	// bind texture to fragment shader uniform sampler2D
+	uniform_mat = glGetUniformLocation(shader_programme, "tex");
+	glUniform1i(uniform_mat, 0);
+
+	//set bool for textures
+	glUniform1i(glGetUniformLocation(shader_programme, "has_texture"), GL_FALSE);
+
+	/*glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureID);*/
+
+
+
+	// -------------------------------------------------------------------------- //
+	//	Error checking															  //
+	// -------------------------------------------------------------------------- //
 	// check if shader is compiled and linked;
 	GLint isLinked = 0;
 	glGetProgramiv(shader_programme, GL_LINK_STATUS, &isLinked);
@@ -265,7 +281,7 @@ void	scop(t_scop *sc)
 		//glDrawArrays (GL_POINTS, 0, sc->nb_vertices * 4);
 		
 		//glDrawArrays (GL_TRIANGLES, 0, ((sc->nb_faces_3 * 3) * 3));
-		glDrawElements(GL_TRIANGLES, sc->nb_faces_3 * 3, GL_UNSIGNED_INT, (void*)0);
+		glDrawElements(GL_TRIANGLES, (sc->nb_faces_3 * 3 + (sc->nb_faces_4 * 2) * 3), GL_UNSIGNED_INT, (void *)0);
 		
 		// update other events like input handling 
 		glfwPollEvents();
@@ -313,6 +329,7 @@ void		data_init(t_scop *sc)
 	set_vec(&sc->bounding_box_center, 0.0, 0.0, 0.0);
 	set_vec(&sc->bounding_box_max, 0.0, 0.0, 0.0);
 	set_vec(&sc->bounding_box_min, 0.0, 0.0, 0.0);
+	set_vec(&sc->light_pos, 2.0, 0.0, 0.0);
 }
 
 void		allocate_variables(t_scop *sc)
@@ -322,12 +339,12 @@ void		allocate_variables(t_scop *sc)
 		ft_putendl("vertices allocation failed.");
 		exit (-1);
 	}
-	if (!(sc->face_indices = (unsigned int *)malloc(sizeof(GL_UNSIGNED_INT) * (sc->nb_faces_3 * 3 + sc->nb_faces_4 * 3))))
+	if (!(sc->face_indices = (unsigned int *)malloc((sc->nb_faces_3 * 3 + (sc->nb_faces_4 * 2) * 3) * sizeof(GL_UNSIGNED_INT))))
 	{
 		ft_putendl("faces - indices allocation failed.");
 		exit (-1);
 	}
-	if (!(sc->obj_normals = (float *)malloc(sizeof(float) * sc->nb_normals_vertices * 3)))
+	if (!(sc->obj_normals = (float *)malloc(sizeof(float) * (sc->nb_faces_3 + sc->nb_faces_4 * 2))))
 	{
 		ft_putendl("vertices allocation failed.");
 		exit (-1);

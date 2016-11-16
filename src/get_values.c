@@ -34,7 +34,7 @@ void count_values(t_scop *sc)
 			// face handling
 			else if (strcmp(token->value, "f") == 0)
 			{
-				sc->nb_faces_3 += 1;
+				//sc->nb_faces_3 += 1;
 				inline_i = 0;
 				sc->inline_token = token->next;
 				while (sc->inline_token && sc->inline_token->line_number == token->line_number)
@@ -197,33 +197,11 @@ void						fill_face(t_scop *sc, t_token *token)
 	// Filling a face_3
 	if (sc->inline_i == 3)
 	{
-		sc->inline_token = token->next;
-		while (sc->inline_token && sc->inline_token->line_number == token->line_number)
-		{
-			// get the indice 1
-			sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->value, NULL, 10) - 1; // -1 cause indices start at 1...
-			sc->indices_itmp += 1;
-
-			// moving to next;
-			sc->inline_token = sc->inline_token->next;
-		}
+		fill_face3(sc, token);
 	}
 	// Filling a face_4 - converting it into a triangle.
 	if (sc->inline_i == 4)
 	{
-		sc->inline_token = token->next;
-		sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->value, NULL, 10) - 1; // [0]
-		sc->indices_itmp++;
-		sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->next->value, NULL, 10) - 1; // [1]
-		sc->indices_itmp++;
-		sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->next->next->value, NULL, 10) - 1; // [2]
-		sc->indices_itmp++;
-
-		sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->next->next->next->value, NULL, 10) - 1; // [3]
-		sc->indices_itmp++;
-		sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->next->next->value, NULL, 10) - 1; // [2]
-		sc->indices_itmp++;
-		sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->value, NULL, 10) - 1; // [0]
-		sc->indices_itmp++;
+		fill_face4(sc, token);	
 	}
 }
