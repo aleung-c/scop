@@ -148,11 +148,18 @@ typedef struct						s_scop
 	unsigned int					*face_indices;
 	int								indices_itmp;
 
-	float							*obj_normals; // vn
+	float							*obj_normals; // vn -> just the stocked values.
 	int								normals_itmp;
+
+	float							*faces_normals; // for each face(3 vertices) -> 3 float ordered.
+	int								face_normals_itmp;
+
 
 	float							*obj_tex_coords; // vt
 	int								tex_coord_itmp;
+
+	float							*faces_uv; // uv for faces.
+	int								faces_uv_itmp;
 
 	t_bmp_texture					default_texture;
 
@@ -243,6 +250,9 @@ void						fill_normals(t_scop *sc, t_token *token);
 void						fill_face(t_scop *sc, t_token *token);
 void						fill_face3(t_scop *sc, t_token *token);
 void						fill_face4(t_scop *sc, t_token *token);
+
+void						add_face_normal_from_indice(t_scop *sc, char *splitted_indice);
+void						add_face_uv_from_indice(t_scop *sc, char *splitted_indice);
 
 void						set_bounding_box_limits(t_scop *sc);
 void						set_bounding_box_center(t_scop *sc);

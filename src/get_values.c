@@ -57,11 +57,10 @@ void count_values(t_scop *sc)
 	ft_putstr(KGRN "Object file datas:" KRESET);
 	ft_putchar('\n');
 
-	printf("Nb of vertices = %lu\n", sc->nb_vertices);
-	printf("Nb of tex vertices = %lu\n", sc->nb_texture_vertices);
-	printf("Nb of normals vertices = %lu\n", sc->nb_texture_vertices);
-	printf("Nb of normals vertices = %lu\n", sc->nb_normals_vertices);
-	printf("Nb of parameter space vertices = %lu\n", sc->nb_parameter_space_vertices);
+	printf("Nb of v  = %lu\n", sc->nb_vertices);
+	printf("Nb of vt = %lu\n", sc->nb_texture_vertices);
+	printf("Nb of vn = %lu\n", sc->nb_normals_vertices);
+	printf("Nb of vp = %lu\n", sc->nb_parameter_space_vertices);
 	printf("Nb of faces 3 = %lu\n", sc->nb_faces_3);
 	printf("Nb of faces 4 = %lu\n", sc->nb_faces_4);
 	printf("Nb of faces more = %lu\n", sc->nb_faces_more);
@@ -123,7 +122,7 @@ void						fill_vertex(t_scop *sc, t_token *token)
 	}
 }
 
-void					set_bounding_box_limits(t_scop *sc)
+void						set_bounding_box_limits(t_scop *sc)
 {
 	if (sc->inline_i == 0)
 	{
@@ -151,7 +150,7 @@ void					set_bounding_box_limits(t_scop *sc)
 	}
 }
 
-void					set_bounding_box_center(t_scop *sc)
+void						set_bounding_box_center(t_scop *sc)
 {
 	sc->bounding_box_center.x = (sc->bounding_box_min.x + sc->bounding_box_max.x) / 2;
 	sc->bounding_box_center.y = (sc->bounding_box_min.y + sc->bounding_box_max.y) / 2;
@@ -171,13 +170,16 @@ void						fill_tex_coord(t_scop *sc, t_token *token)
 
 void						fill_normals(t_scop *sc, t_token *token)
 {
+	//int i = 0;
 	sc->inline_token = token->next;
 	while (sc->inline_token && sc->inline_token->line_number == token->line_number)
 	{
 		sc->obj_normals[sc->normals_itmp] = strtof(&(*sc->inline_token->value), &sc->inline_token->value);
 		sc->normals_itmp++;
 		sc->inline_token = sc->inline_token->next;
+		//i++;
 	}
+	//printf("added %d normal vals \n", i);
 }
 
 void						fill_face(t_scop *sc, t_token *token)
@@ -202,6 +204,6 @@ void						fill_face(t_scop *sc, t_token *token)
 	// Filling a face_4 - converting it into a triangle.
 	if (sc->inline_i == 4)
 	{
-		fill_face4(sc, token);	
+		fill_face4(sc, token);
 	}
 }

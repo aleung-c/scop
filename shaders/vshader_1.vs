@@ -17,7 +17,11 @@ uniform mat4	view_orientation_matrix;
 // projection matrices
 uniform mat4	perspective_projection_matrix;
 
+layout(location = 1) in vec3 v_normal;
+
 out vec4		vertex_position;
+out vec3		vertex_normal;
+out vec3		normal_eye;
 
 void main ()
 {
@@ -30,7 +34,34 @@ void main ()
 	mat4	view_matrice = view_orientation_matrix * view_translation_matrix;
 
 	gl_Position = perspective_projection_matrix * view_matrice * model_matrice * vp;
-
 	// set final vertex pos;
 	vertex_position = gl_Position;
+
+	vertex_normal = v_normal;
+	normal_eye = vec3 (view_matrice * model_matrice * vec4(vertex_normal, 0.0));
 }
+
+/*
+#version 410
+
+layout(location = 0) in vec3 vertex_position;
+layout(location = 1) in vec3 vertex_color;
+layout(location = 2) in vec3 vertex_normal;
+layout(location = 3) in vec2 uv;
+
+uniform mat4 projection_mat;
+uniform mat4 view_mat;
+uniform mat4 model_mat;
+
+out vec2 texture_coordinates;
+out vec3 position_eye;
+out vec3 normal_eye;
+out vec3 color;
+
+void main () {
+    texture_coordinates = uv;
+    color = vertex_color;
+    position_eye = vec3 (view_mat * model_mat * vec4(vertex_position, 1.0));
+    normal_eye = vec3 (view_mat * model_mat * vec4(vertex_normal, 0.0));
+    gl_Position = projection_mat * vec4(position_eye, 1.0);
+}*/

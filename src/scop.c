@@ -24,6 +24,7 @@ int		initGLFW(t_scop *sc)
 		ft_putendl("ERROR: could not start GLFW3");
 		return 1;
 	}
+
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -82,8 +83,9 @@ void	scop(t_scop *sc)
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
+
 	// -------------------------------------------------------------------------- //
-	//	VBO - Vertex buffer object												  //
+	//	VBOs - Vertex buffer object												  //
 	// -------------------------------------------------------------------------- //
 	// generating vbo buffers
 	GLuint			vbo;
@@ -91,8 +93,20 @@ void	scop(t_scop *sc)
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, (sc->nb_vertices * 4) * sizeof(float), sc->obj_vertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(0);
+	
+	// TODO : add a color vbo.
+
+	// for the normals
+	GLuint			nbo;
+	glGenBuffers(1, &nbo);
+
+	glBindBuffer(GL_ARRAY_BUFFER, nbo);
+	glBufferData(GL_ARRAY_BUFFER, ((((sc->nb_faces_3 + (sc->nb_faces_4 * 2)) * 3) * 3) * 3) * sizeof(float), sc->faces_normals, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(1);
+	
 
 	// -------------------------------------------------------------------------- //
 	//	EBO - Buffer object	of indices											  //
@@ -114,7 +128,12 @@ void	scop(t_scop *sc)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo2);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);*/
-
+	/*int i;
+	for (i = 0; i < ((((sc->nb_faces_3 + (sc->nb_faces_4 * 2)) * 3) * 3) * 3); i += 3)
+	{
+		printf("normal : %fx %fy %fz \n", sc->faces_normals[i], sc->faces_normals[i + 1], sc->faces_normals[i + 2]);
+	}
+	printf("i = %d\n", i);*/
 	
 
 	// -------------------------------------------------------------------------- //
@@ -220,8 +239,8 @@ void	scop(t_scop *sc)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sc->default_texture.width, sc->default_texture.height, 0,
 		GL_BGR, GL_UNSIGNED_BYTE, sc->default_texture.data);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	
 	// bind texture to fragment shader uniform sampler2D
 	uniform_mat = glGetUniformLocation(shader_programme, "tex");
@@ -260,7 +279,7 @@ void	scop(t_scop *sc)
 	// -------------------------------------------------------------------------- //
 	//	DRAWING																	  //
 	// -------------------------------------------------------------------------- //
-	float i = 0.0;
+	float i_axis = 0.0;
 	while (!glfwWindowShouldClose(sc->window))
 	{
 		// wipe the drawing surface clear
@@ -268,13 +287,15 @@ void	scop(t_scop *sc)
 		glUseProgram(shader_programme);
 
 		// change val to rotate model.
-		i += 0.005;
+		i_axis += 0.005;
 		uniform_mat = glGetUniformLocation(shader_programme, "rotation_y_matrix");
 		if (uniform_mat != -1)
 		{
-			set_y_rotation_matrix(sc, i);
+			set_y_rotation_matrix(sc, i_axis);
 			glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_y_rotation[0][0]);
 		}
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
 		//glBindVertexArray (vao);
 
 		// draw points 0-3 from the currently bound VAO with current in-use shader
@@ -282,16 +303,56 @@ void	scop(t_scop *sc)
 		
 		//glDrawArrays (GL_TRIANGLES, 0, ((sc->nb_faces_3 * 3) * 3));
 		glDrawElements(GL_TRIANGLES, (sc->nb_faces_3 * 3 + (sc->nb_faces_4 * 2) * 3), GL_UNSIGNED_INT, (void *)0);
-		
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
 		// update other events like input handling 
 		glfwPollEvents();
 		// put the stuff we've been drawing onto the display
 		glfwSwapBuffers(sc->window);
 	}
+
+// ggaubin's code.	
+/*
+	static void		fifty_fifty(t_object *o, t_mat4 p, t_mat4 view)
+{
+	update_mat(&o->model, o->translation, o->rotation, o->scale);
+	glUseProgram(o->program);
+	glUniformMatrix4fv(o->view_matrix_id, 1, GL_FALSE, (void *)&view);
+	glUniformMatrix4fv(o->projection_matrix_id, 1, GL_FALSE,\
+						(void *)&p);
+	glUniformMatrix4fv(o->model_matrix_id, 1, GL_FALSE, (void *)&(o->model));
+	glUniform1f(o->texture_mix_id, o->texture_mix_coeff);
+	set_ambiant_color(o);
+	glBindTexture(GL_TEXTURE_2D, o->texture);
+	glBindBuffer(GL_ARRAY_BUFFER, o->vbo);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glBindBuffer(GL_ARRAY_BUFFER, o->cvbo);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+}
+
+void			draw(t_object *o, GLenum mode, t_mat4 projection, t_mat4 view)
+{
+	fifty_fifty(o, projection, view);
+	glBindBuffer(GL_ARRAY_BUFFER, o->nbo);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glBindBuffer(GL_ARRAY_BUFFER, o->ubo);
+	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
+	glDrawArrays(mode, 0, o->size_mesh / 3);
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
+	glDisableVertexAttribArray(3);
+}
+*/
 }
 
 void		data_init(t_scop *sc)
 {
+	// obj value counters.
 	sc->nb_vertices = 0;
 	sc->nb_texture_vertices = 0;
 	sc->nb_normals_vertices = 0;
@@ -302,9 +363,15 @@ void		data_init(t_scop *sc)
 	sc->nb_obj = 0;
 	sc->nb_groups = 0;
 	sc->nb_materials = 0;
+
+	// counters
 	sc->itmp = 0;
 	sc->indices_itmp = 0;
 	sc->normals_itmp = 0;
+	sc->face_normals_itmp = 0;
+	sc->faces_uv_itmp = 0;
+	
+	// matrices.
 	init_translation_matrix(sc);
 	init_scaling_matrix(sc);
 	init_identity_matrix(sc);
@@ -334,24 +401,34 @@ void		data_init(t_scop *sc)
 
 void		allocate_variables(t_scop *sc)
 {
-	if (!(sc->obj_vertices = (float *)malloc(sizeof(float) * sc->nb_vertices * 4)))
+	if (!(sc->obj_vertices = (float *)malloc(sizeof(float) * sc->nb_vertices * 4))) // v
 	{
 		ft_putendl("vertices allocation failed.");
 		exit (-1);
 	}
-	if (!(sc->face_indices = (unsigned int *)malloc((sc->nb_faces_3 * 3 + (sc->nb_faces_4 * 2) * 3) * sizeof(GL_UNSIGNED_INT))))
+	if (!(sc->face_indices = (unsigned int *)malloc((sc->nb_faces_3 * 3 + (sc->nb_faces_4 * 2) * 3) * sizeof(GL_UNSIGNED_INT)))) // indices
 	{
 		ft_putendl("faces - indices allocation failed.");
 		exit (-1);
 	}
-	if (!(sc->obj_normals = (float *)malloc(sizeof(float) * (sc->nb_faces_3 + sc->nb_faces_4 * 2))))
+	if (!(sc->obj_normals = (float *)malloc(sizeof(float) * (sc->nb_normals_vertices) * 3))) // vn
 	{
-		ft_putendl("vertices allocation failed.");
+		ft_putendl("normal values allocation failed.");
 		exit (-1);
 	}
-	if (!(sc->obj_tex_coords = (float *)malloc(sizeof(float) * sc->nb_texture_vertices * 2)))
+	if (!(sc->faces_normals = (float *)malloc(sizeof(float) * ((((sc->nb_faces_3 + (sc->nb_faces_4 * 2)) * 3) * 3) * 3)))) // for each face
 	{
-		ft_putendl("vertices allocation failed.");
+		ft_putendl("faces normals allocation failed.");
+		exit (-1);
+	}
+	if (!(sc->obj_tex_coords = (float *)malloc(sizeof(float) * sc->nb_texture_vertices * 2))) // vt
+	{
+		ft_putendl("vt values allocation failed.");
+		exit (-1);
+	}
+	if (!(sc->faces_uv = (float *)malloc(sizeof(float) * (sc->nb_faces_3 * 3 + (sc->nb_faces_4 * 2) * 3) * 2))) // for each face
+	{
+		ft_putendl("faces uv allocation failed.");
 		exit (-1);
 	}
 	ft_putendl("- obj file variables allocated.");
@@ -372,7 +449,6 @@ int		main(int argc, char **argv)
 			count_values(&sc); // has to count for mallocating.
 			allocate_variables(&sc);
 			get_values(&sc); // fill values in mallocated vars;
-			
 			scop(&sc);
 		}
 	}
