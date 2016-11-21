@@ -17,7 +17,7 @@ void		load_textures(t_scop *sc)
 	// Open the file
 	FILE	*file;
 
-	file = fopen("resources/water_texture.bmp","rb");
+	file = fopen("resources/default_texture.bmp","rb");
 	if (!file)
 	{
 		printf("Image could not be opened\n");
@@ -28,10 +28,16 @@ void		load_textures(t_scop *sc)
     	printf("Not a correct BMP file\n");
     	exit (-1);
 	}
-	sc->default_texture.data_pos = *(int*)&(sc->default_texture.header[0x0A]);
-	sc->default_texture.image_size = *(int*)&(sc->default_texture.header[0x22]);
-	sc->default_texture.width = *(int*)&(sc->default_texture.header[0x12]);
-	sc->default_texture.height = *(int*)&(sc->default_texture.header[0x16]);
+	sc->default_texture.data_pos = *(int*)&(sc->default_texture.header[10]);
+	sc->default_texture.image_size = *(int*)&(sc->default_texture.header[34]);
+	sc->default_texture.width = *(int*)&(sc->default_texture.header[18]);
+	sc->default_texture.height = *(int*)&(sc->default_texture.header[22]);
+
+	if ( sc->default_texture.header[0] != 'B' || sc->default_texture.header[1] != 'M' )
+	{
+		printf("Not a correct BMP file\n");
+		exit (-1);
+	}
 
 	printf("default_texture infos:\nimage_size: %d \nwidth: %d \nheight: %d\n",
 		sc->default_texture.image_size, sc->default_texture.width, sc->default_texture.height);

@@ -19,10 +19,12 @@ uniform mat4	perspective_projection_matrix;
 
 layout(location = 1) in vec3 v_normal;
 layout(location = 2) in vec3 v_color;
+layout(location = 4) in vec2 uv;
 
 out vec4		vertex_position;
 out vec3		vertex_normal;
 out vec3		color;
+out vec2		texture_coordinates;
 
 void main ()
 {
@@ -35,11 +37,13 @@ void main ()
 	mat4	view_matrice = view_orientation_matrix * view_translation_matrix;
 
 	gl_Position = perspective_projection_matrix * view_matrice * model_matrice * vp;
+
 	// set final vertex pos;
 	vertex_position = gl_Position;
 
 	vertex_normal = v_normal;
 	color = v_color;
+	texture_coordinates = uv;
 }
 
 /*

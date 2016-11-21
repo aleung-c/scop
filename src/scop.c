@@ -52,6 +52,7 @@ int initOpenGL(t_scop *sc)
 	//glEnable(GL_PROGRAM_POINT_SIZE);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+	glEnable(GL_BLEND);
 	//glEnable(GL_CULL_FACE);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//glEnable(GL_LIGHTING);	// Active l'éclairage
@@ -168,9 +169,6 @@ void	scop(t_scop *sc)
 	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "tex");
 	glUniform1i(uniform_mat, 0);
 
-	//set bool for textures
-	glUniform1i(glGetUniformLocation(sc->main_shader_programme, "has_texture"), GL_FALSE);
-
 	/*glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureID);*/
 
@@ -217,6 +215,7 @@ void		data_init(t_scop *sc)
 
 	// counters
 	sc->itmp = 0;
+	sc->faces_vertices_itmp = 0;
 	sc->indices_itmp = 0;
 	sc->normals_itmp = 0;
 	sc->face_normals_itmp = 0;
@@ -253,12 +252,13 @@ void		data_init(t_scop *sc)
 
 void		allocate_variables(t_scop *sc)
 {
+	sc->total_faces = (sc->nb_faces_3 + (sc->nb_faces_4 * 2));
 	if (!(sc->obj_vertices = (float *)malloc(sizeof(float) * sc->nb_vertices * 4))) // v
 	{
 		ft_putendl("vertices allocation failed.");
 		exit (-1);
 	}
-	if (!(sc->face_indices = (unsigned int *)malloc((sc->nb_faces_3 * 3 + (sc->nb_faces_4 * 2) * 3) * sizeof(GL_UNSIGNED_INT)))) // indices
+	if (!(sc->face_indices = (unsigned int *)malloc(sc->total_faces * 3 * sizeof(GL_UNSIGNED_INT)))) // indices
 	{
 		ft_putendl("faces - indices allocation failed.");
 		exit (-1);
@@ -268,9 +268,14 @@ void		allocate_variables(t_scop *sc)
 		ft_putendl("normal values allocation failed.");
 		exit (-1);
 	}
-	if (!(sc->faces_normals = (float *)malloc(sizeof(float) * ((((sc->nb_faces_3 + (sc->nb_faces_4 * 2)) * 3) * 3) * 3)))) // for each face
+	if (!(sc->faces_normals = (float *)malloc(sizeof(float) * ((sc->total_faces * 3) * 3) * 3))) // for each face
 	{
 		ft_putendl("faces normals allocation failed.");
+		exit (-1);
+	}
+	if (!(sc->faces_vertices = (float *)malloc(sizeof(float) * (sc->total_faces * 3) * 4))) // for each face
+	{
+		ft_putendl("faces vertices allocation failed.");
 		exit (-1);
 	}
 	if (!(sc->obj_tex_coords = (float *)malloc(sizeof(float) * sc->nb_texture_vertices * 2))) // vt
@@ -278,14 +283,19 @@ void		allocate_variables(t_scop *sc)
 		ft_putendl("vt values allocation failed.");
 		exit (-1);
 	}
-	if (!(sc->faces_uv = (float *)malloc(sizeof(float) * (sc->nb_faces_3 * 3 + (sc->nb_faces_4 * 2) * 3) * 2))) // for each face
+	if (!(sc->faces_uv = (float *)malloc(sizeof(float) * sc->total_faces * 3 * 2))) // for each face
 	{
 		ft_putendl("faces uv allocation failed.");
 		exit (-1);
 	}
-	if (!(sc->vertex_color_values = (float *)malloc(sizeof(float) * (sc->nb_faces_3 * 3 + (sc->nb_faces_4 * 2) * 3) * 3))) // for each face
+	if (!(sc->vertex_color_values = (float *)malloc(sizeof(float) * (sc->total_faces * 3) * 3))) // for each face
 	{
-		ft_putendl("faces uv allocation failed.");
+		ft_putendl("color buffer allocation failed.");
+		exit (-1);
+	}
+	if (!(sc->vertex_color_values_copy = (float *)malloc(sizeof(float) * (sc->total_faces * 3) * 3))) // for each face
+	{
+		ft_putendl("color buffer copy allocation failed.");
 		exit (-1);
 	}
 	ft_putendl("- obj file variables allocated.");
@@ -295,6 +305,7 @@ int		main(int argc, char **argv)
 {
 	t_scop		sc;
 
+	g_global_sc = &sc;
 	if (argc == 2)
 	{
 		if (get_obj(&sc, argv[1]) == 0) // open file and fill chained list of tokens(lexer).
@@ -307,6 +318,10 @@ int		main(int argc, char **argv)
 			allocate_variables(&sc);
 			get_values(&sc); // fill values in mallocated vars;
 			set_model_colors(&sc); // set color for each v of each face.
+			if (sc.nb_texture_vertices == 0)
+			{
+				generate_uvs(&sc);
+			}
 			scop(&sc);
 		}
 	}

@@ -3,6 +3,7 @@
 in vec4					vertex_position;
 in vec3					vertex_normal;
 in vec3					color;
+in vec2					texture_coordinates;
 out vec4				frag_colour;
 
 uniform bool			has_texture = false;
@@ -18,9 +19,10 @@ void main ()
 	}
 	else
 	{
-		vec4 normalized_v = normalize(vertex_position);
-		vec2 tex_UV = vec2(1.0 / vertex_position.x, 1.0 / vertex_position.y);
-		frag_colour = texture(tex, tex_UV);
+		//vec2 tex_UV = vec2(vertex_normal.x, vertex_normal.y);
+		frag_colour = texture(tex, texture_coordinates);
+		//frag_colour = vec4(color, 1.0);
+		
 	}
 }
 

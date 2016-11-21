@@ -59,7 +59,9 @@
 #define KWHT  "\x1B[37m"
 #define KRESET "\x1B[0m"
 
-typedef enum	e_token_type
+
+
+typedef enum						e_token_type
 {
 	word,
 	numeric_value,
@@ -67,7 +69,7 @@ typedef enum	e_token_type
 	file_name,
 
 	error
-}				s_token_type;
+}									s_token_type;
 
 // lexer parser
 typedef struct						s_token
@@ -138,12 +140,18 @@ typedef struct						s_scop
 	unsigned long int				nb_groups;
 	unsigned long int				nb_materials;
 
+	unsigned long int				total_faces;
+
+
 	t_token							*inline_token;
 	int								inline_i;
 
 	// actual variables
 	float							*obj_vertices;
 	int								itmp;
+
+	float							*faces_vertices; // for rough faces.
+	int								faces_vertices_itmp;
 
 	unsigned int					*face_indices;
 	int								indices_itmp;
@@ -162,11 +170,22 @@ typedef struct						s_scop
 	int								faces_uv_itmp;
 
 	float							*vertex_color_values; // for faces of diff colors.
+	float							*vertex_color_values_copy;
 	int								vcolor_itmp;
 
 	t_bmp_texture					default_texture;
 
 	GLuint							main_shader_programme;
+
+	// buffer references;
+	GLuint							vao; // vertex array object
+	GLuint							vbo; // vertex buffer object
+	GLuint							nbo; // normals buffer object
+	GLuint							cbo; // color buffer object
+	GLuint							ubo; // color buffer object
+
+	GLuint							ebo; // element buffer objects -> indices.
+	GLuint							fvbo; // face vertices buffer.
 
 	// matrix handling
 	float							matrix_identity[4][4];
@@ -214,6 +233,11 @@ typedef struct						s_scop
 
 	int								on_standby;
 	int								in_transition;
+	int								is_textured;
+	int								using_array;
+
+	int								transition_counter;
+	int								buffer_i;
 
 	int								is_rotating;
 	int 							is_rotating_y;
@@ -223,7 +247,10 @@ typedef struct						s_scop
 
 }									t_scop;
 
-
+/*
+**	global access for GLFW.
+*/
+t_scop								*g_global_sc;
 
 /*
 **	Function Prototypes.
@@ -232,107 +259,114 @@ typedef struct						s_scop
 /*
 **	Get Object and parse it;
 */
-int							get_obj(t_scop *sc, char *arg);
+int									get_obj(t_scop *sc, char *arg);
 
-void						lex_obj_line(t_scop *sc, char *line, int line_number);
-void						set_token_type(t_token *cur_token, char *token_str);
-void						add_token_to_list(t_scop *sc, t_token *obj_token_list, t_token *cur_token);
+void								lex_obj_line(t_scop *sc, char *line, int line_number);
+void								set_token_type(t_token *cur_token, char *token_str);
+void								add_token_to_list(t_scop *sc, t_token *obj_token_list, t_token *cur_token);
 
-int							regex_match(char *string_to_search, char *regex_str);
+int									regex_match(char *string_to_search, char *regex_str);
 
-void						print_tokens(t_scop *sc);
-void						print_parser_error(t_token *token, char *error_string);
+void								print_tokens(t_scop *sc);
+void								print_parser_error(t_token *token, char *error_string);
 
 
-void						init_dictionnaries(t_scop *sc);
-void						add_word_to_dictionnary(t_scop *sc, char *word);
-int							is_word_in_dictionnary(t_scop *sc, char *word);
+void								init_dictionnaries(t_scop *sc);
+void								add_word_to_dictionnary(t_scop *sc, char *word);
+int									is_word_in_dictionnary(t_scop *sc, char *word);
 
-void						parse_obj(t_scop *sc);
-int							check_tokens(t_scop *sc);
-void						change_token_indice_type(t_scop *sc);
+void								parse_obj(t_scop *sc);
+int									check_tokens(t_scop *sc);
+void								change_token_indice_type(t_scop *sc);
 
 // token steps
-void						check_token_order(t_scop *sc);
-void						dictionnary_comparison(t_scop *sc);
+void								check_token_order(t_scop *sc);
+void								dictionnary_comparison(t_scop *sc);
 
-void						data_init(t_scop *sc);
+void								data_init(t_scop *sc);
 
-void						count_values(t_scop *sc);
-void						get_values(t_scop *sc);
-void						fill_vertex(t_scop *sc, t_token *token);
-void						fill_tex_coord(t_scop *sc, t_token *token);
-void						fill_normals(t_scop *sc, t_token *token);
-void						fill_face(t_scop *sc, t_token *token);
-void						fill_face3(t_scop *sc, t_token *token);
-void						fill_face4(t_scop *sc, t_token *token);
+void								count_values(t_scop *sc);
+void								get_values(t_scop *sc);
+void								fill_vertex(t_scop *sc, t_token *token);
+void								fill_tex_coord(t_scop *sc, t_token *token);
+void								fill_normals(t_scop *sc, t_token *token);
+void								fill_face(t_scop *sc, t_token *token);
+void								fill_face3(t_scop *sc, t_token *token);
+void								fill_face4(t_scop *sc, t_token *token);
 
-void						fill_face_split_indice(t_scop *sc, t_token *inline_token);
 
-void						add_face_normal_from_indice(t_scop *sc, char *splitted_indice);
-void						add_face_uv_from_indice(t_scop *sc, char *splitted_indice);
+void								fill_face_split_indice(t_scop *sc, t_token *inline_token);
+void								fill_face_vertices(t_scop *sc, unsigned int indice);
 
-void						set_bounding_box_limits(t_scop *sc);
-void						set_bounding_box_center(t_scop *sc);
 
-void						set_model_colors(t_scop *sc);
+void								add_face_normal_from_indice(t_scop *sc, char *splitted_indice);
+void								add_face_uv_from_indice(t_scop *sc, char *splitted_indice);
 
-void						allocate_variables(t_scop *sc);
+void								set_bounding_box_limits(t_scop *sc);
+void								set_bounding_box_center(t_scop *sc);
+
+void								set_model_colors(t_scop *sc);
+void								generate_uvs(t_scop *sc);
+
+void								allocate_variables(t_scop *sc);
 
 // matrix handling
 //	model matrices
-void						init_identity_matrix(t_scop *sc);
-void						init_translation_matrix(t_scop *sc);
-void						set_translation_matrix(t_scop *sc, float x, float y, float z);
-void						init_scaling_matrix(t_scop *sc);
-void						set_scaling_matrix(t_scop *sc, float scale);
+void								init_identity_matrix(t_scop *sc);
+void								init_translation_matrix(t_scop *sc);
+void								set_translation_matrix(t_scop *sc, float x, float y, float z);
+void								init_scaling_matrix(t_scop *sc);
+void								set_scaling_matrix(t_scop *sc, float scale);
 
 //	model rotation matrices
-void						init_x_rotation_matrix(t_scop *sc);
-void						init_y_rotation_matrix(t_scop *sc);
-void						init_z_rotation_matrix(t_scop *sc);
+void								init_x_rotation_matrix(t_scop *sc);
+void								init_y_rotation_matrix(t_scop *sc);
+void								init_z_rotation_matrix(t_scop *sc);
 
-void						set_x_rotation_matrix(t_scop *sc, float rot);
-void						set_y_rotation_matrix(t_scop *sc, float rot);
-void						set_z_rotation_matrix(t_scop *sc, float rot);
+void								set_x_rotation_matrix(t_scop *sc, float rot);
+void								set_y_rotation_matrix(t_scop *sc, float rot);
+void								set_z_rotation_matrix(t_scop *sc, float rot);
 
 //	view matrices
-void						init_view_orientation_matrix(t_scop *sc);
-void						init_view_translation_matrix(t_scop *sc);
+void								init_view_orientation_matrix(t_scop *sc);
+void								init_view_translation_matrix(t_scop *sc);
 
 // projection matrices
-void						init_perspective_projection_matrix(t_scop *sc);
+void								init_perspective_projection_matrix(t_scop *sc);
 
-void						load_textures(t_scop *sc);
+void								load_textures(t_scop *sc);
 
 
 /*
 **	Displaying the object -> glfw and open gl.
 */
 
-char						*get_file_content(char *file_path);
+char								*get_file_content(char *file_path);
 
-int							initGLFW(t_scop *sc);
-int							initOpenGL(t_scop *sc);
+int									initGLFW(t_scop *sc);
+int									initOpenGL(t_scop *sc);
 
-void						opengl_set_buffers(t_scop *sc);
-void						opengl_load_shaders(t_scop *sc);
+void								opengl_set_buffers(t_scop *sc);
+void								opengl_load_shaders(t_scop *sc);
 
-void						opengl_drawing(t_scop *sc);
-void						event_init(t_scop *sc);
-void						event_process(t_scop *sc);
+void								opengl_drawing(t_scop *sc);
+
+void								event_init(t_scop *sc);
+void								event_process(t_scop *sc);
+
 
 /*
 **	utils
 */
-void					set_vec(t_vec3 *v, float x, float y, float z);
-t_vec3					normalize(t_vec3 v);
-float					norme(t_vec3 v);
-t_vec3					vec_sub(t_vec3 v1, t_vec3 v2);
-t_vec3					vec_cross(t_vec3 v1, t_vec3 v2);
-float					vec_magnitude(t_vec3 v);
-float					vec_dot_product(t_vec3 v1, t_vec3 v2);
-t_color					create_color(float r, float g, float b, float a);
-t_color					set_color(t_color c, float r, float g, float b, float a);
-float					set_gray_level(float color);
+void								set_vec(t_vec3 *v, float x, float y, float z);
+t_vec3								normalize(t_vec3 v);
+float								norme(t_vec3 v);
+t_vec3								vec_sub(t_vec3 v1, t_vec3 v2);
+t_vec3								vec_cross(t_vec3 v1, t_vec3 v2);
+float								vec_magnitude(t_vec3 v);
+float								vec_dot_product(t_vec3 v1, t_vec3 v2);
+t_color								create_color(float r, float g, float b, float a);
+t_color								set_color(t_color c, float r, float g, float b, float a);
+float								set_gray_level(float color);
+
 #endif

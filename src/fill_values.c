@@ -12,7 +12,7 @@
 
 #include "../includes/scop.h"
 
-void fill_face3(t_scop *sc, t_token *token)
+void		fill_face3(t_scop *sc, t_token *token)
 {
 	char			*t_val_cpy;
 
@@ -27,7 +27,7 @@ void fill_face3(t_scop *sc, t_token *token)
 /*
 **	Split indice of format x/x/x or x//x or x. Works with faces_3 and faces_4.
 */
-void	fill_face_split_indice(t_scop *sc, t_token *inline_token)
+void		fill_face_split_indice(t_scop *sc, t_token *inline_token)
 {
 	char			*splitted_indice;
 	char			t_val_cpy[strlen(inline_token->value)];
@@ -44,7 +44,9 @@ void	fill_face_split_indice(t_scop *sc, t_token *inline_token)
 			//printf("splitted_indice = %s\n", splitted_indice);
 			// get the indice 1
 			sc->face_indices[sc->indices_itmp] = strtol(splitted_indice, NULL, 10) - 1; // -1 cause indices start at 1...
+			fill_face_vertices(sc, sc->face_indices[sc->indices_itmp]);
 			sc->indices_itmp++;
+
 		}
 		else if (pos_in_indice == 1 && regex_match(sc->inline_token->value, "^[-]?[0-9]+\\/\\/[-]?[0-9]*$")) // pos 2 et x//x => normal.
 		{
@@ -64,11 +66,24 @@ void	fill_face_split_indice(t_scop *sc, t_token *inline_token)
 	}
 }
 
+void		fill_face_vertices(t_scop *sc, unsigned int indice)
+{
+	sc->faces_vertices[sc->faces_vertices_itmp] = sc->obj_vertices[indice * 4];
+	sc->faces_vertices_itmp++;
+	sc->faces_vertices[sc->faces_vertices_itmp] = sc->obj_vertices[indice * 4 + 1];
+	sc->faces_vertices_itmp++;
+	sc->faces_vertices[sc->faces_vertices_itmp] = sc->obj_vertices[indice * 4 + 2];
+	sc->faces_vertices_itmp++;
+	sc->faces_vertices[sc->faces_vertices_itmp] = 1.0;
+	sc->faces_vertices_itmp++;
+}
+
 /*
 **	Odd bug with pointer copy forces this syntax.
 */
-void	fill_face4(t_scop *sc, t_token *token)
+void		fill_face4(t_scop *sc, t_token *token)
 {
+	// first triangle
 	sc->inline_token = token->next;
 	fill_face_split_indice(sc, sc->inline_token); // [0]
 
@@ -81,31 +96,15 @@ void	fill_face4(t_scop *sc, t_token *token)
 	sc->inline_token = token->next->next->next->next;
 	fill_face_split_indice(sc, sc->inline_token); // [3]
 
-
+	// second triangle
 	sc->inline_token = token->next->next->next;
 	fill_face_split_indice(sc, sc->inline_token); // [2]
 
 	sc->inline_token = token->next;
 	fill_face_split_indice(sc, sc->inline_token); // [0]
-
-	// // first triangle
-	// sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->value, NULL, 10) - 1; // [0]
-	// sc->indices_itmp++;
-	// sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->next->value, NULL, 10) - 1; // [1]
-	// sc->indices_itmp++;
-	// sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->next->next->value, NULL, 10) - 1; // [2]
-	// sc->indices_itmp++;
-
-	// // second triangle
-	// sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->next->next->next->value, NULL, 10) - 1; // [3]
-	// sc->indices_itmp++;
-	// sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->next->next->value, NULL, 10) - 1; // [2]
-	// sc->indices_itmp++;
-	// sc->face_indices[sc->indices_itmp] = strtol(sc->inline_token->value, NULL, 10) - 1; // [0]
-	// sc->indices_itmp++;
 }
 
-void	add_face_normal_from_indice(t_scop *sc, char *splitted_indice)
+void		add_face_normal_from_indice(t_scop *sc, char *splitted_indice)
 {
 	int				indice_val;
 
@@ -135,7 +134,7 @@ void	add_face_normal_from_indice(t_scop *sc, char *splitted_indice)
 	sc->face_normals_itmp++;
 }
 
-void add_face_uv_from_indice(t_scop *sc, char *splitted_indice)
+void		add_face_uv_from_indice(t_scop *sc, char *splitted_indice)
 {
 	int				indice_val;
 
