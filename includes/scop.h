@@ -158,10 +158,15 @@ typedef struct						s_scop
 	float							*obj_tex_coords; // vt
 	int								tex_coord_itmp;
 
-	float							*faces_uv; // uv for faces.
+	float							*faces_uv; // uv for faces. to push some textures.
 	int								faces_uv_itmp;
 
+	float							*vertex_color_values; // for faces of diff colors.
+	int								vcolor_itmp;
+
 	t_bmp_texture					default_texture;
+
+	GLuint							main_shader_programme;
 
 	// matrix handling
 	float							matrix_identity[4][4];
@@ -202,9 +207,20 @@ typedef struct						s_scop
 	t_vec3							bounding_box_min;
 
 
+	float							i_axis;
 
 	// events
 	int								escape_pressed;
+
+	int								on_standby;
+	int								in_transition;
+
+	int								is_rotating;
+	int 							is_rotating_y;
+	int 							is_rotating_x;
+	int 							is_rotating_z;
+	
+
 }									t_scop;
 
 
@@ -251,11 +267,15 @@ void						fill_face(t_scop *sc, t_token *token);
 void						fill_face3(t_scop *sc, t_token *token);
 void						fill_face4(t_scop *sc, t_token *token);
 
+void						fill_face_split_indice(t_scop *sc, t_token *inline_token);
+
 void						add_face_normal_from_indice(t_scop *sc, char *splitted_indice);
 void						add_face_uv_from_indice(t_scop *sc, char *splitted_indice);
 
 void						set_bounding_box_limits(t_scop *sc);
 void						set_bounding_box_center(t_scop *sc);
+
+void						set_model_colors(t_scop *sc);
 
 void						allocate_variables(t_scop *sc);
 
@@ -285,6 +305,7 @@ void						init_perspective_projection_matrix(t_scop *sc);
 
 void						load_textures(t_scop *sc);
 
+
 /*
 **	Displaying the object -> glfw and open gl.
 */
@@ -293,6 +314,13 @@ char						*get_file_content(char *file_path);
 
 int							initGLFW(t_scop *sc);
 int							initOpenGL(t_scop *sc);
+
+void						opengl_set_buffers(t_scop *sc);
+void						opengl_load_shaders(t_scop *sc);
+
+void						opengl_drawing(t_scop *sc);
+void						event_init(t_scop *sc);
+void						event_process(t_scop *sc);
 
 /*
 **	utils
@@ -306,5 +334,5 @@ float					vec_magnitude(t_vec3 v);
 float					vec_dot_product(t_vec3 v1, t_vec3 v2);
 t_color					create_color(float r, float g, float b, float a);
 t_color					set_color(t_color c, float r, float g, float b, float a);
-
+float					set_gray_level(float color);
 #endif

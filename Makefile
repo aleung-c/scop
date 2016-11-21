@@ -30,7 +30,12 @@ src/shader_handling.c \
 src/vector_utils.c \
 src/load_textures.c \
 src/color.c \
-src/fill_values.c
+src/fill_values.c \
+src/set_colors.c \
+src/opengl_set_buffers.c \
+src/opengl_load_shaders.c \
+src/opengl_drawing.c \
+src/events.c
 
 OBJ = $(SRC:.c=.o)
 

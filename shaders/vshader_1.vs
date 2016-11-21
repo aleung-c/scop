@@ -18,10 +18,11 @@ uniform mat4	view_orientation_matrix;
 uniform mat4	perspective_projection_matrix;
 
 layout(location = 1) in vec3 v_normal;
+layout(location = 2) in vec3 v_color;
 
 out vec4		vertex_position;
 out vec3		vertex_normal;
-out vec3		normal_eye;
+out vec3		color;
 
 void main ()
 {
@@ -38,7 +39,7 @@ void main ()
 	vertex_position = gl_Position;
 
 	vertex_normal = v_normal;
-	normal_eye = vec3 (view_matrice * model_matrice * vec4(vertex_normal, 0.0));
+	color = v_color;
 }
 
 /*

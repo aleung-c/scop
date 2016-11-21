@@ -2,17 +2,19 @@
 
 in vec4					vertex_position;
 in vec3					vertex_normal;
-in vec3					normal_eye;
+in vec3					color;
 out vec4				frag_colour;
 
 uniform bool			has_texture = false;
+uniform bool			is_transitionning = false;
 uniform sampler2D		tex;
 
 void main ()
 {
 	if (!has_texture)
 	{
-		frag_colour = vertex_position;
+		//frag_colour = vertex_position;
+		frag_colour = vec4(color, 1.0);
 	}
 	else
 	{

@@ -74,96 +74,18 @@ void	scop(t_scop *sc)
 		ft_putendl("Initialisation Failed. Exiting ...");
 		exit (-1);
 	}
-
-	// -------------------------------------------------------------------------- //
-	//	VAO - Vertex Array object												  //
-	// -------------------------------------------------------------------------- //
-	GLuint vao = 0;
-
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-
-	// -------------------------------------------------------------------------- //
-	//	VBOs - Vertex buffer object												  //
-	// -------------------------------------------------------------------------- //
-	// generating vbo buffers
-	GLuint			vbo;
-	glGenBuffers(1, &vbo);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, (sc->nb_vertices * 4) * sizeof(float), sc->obj_vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(0);
 	
-	// TODO : add a color vbo.
-
-	// for the normals
-	GLuint			nbo;
-	glGenBuffers(1, &nbo);
-
-	glBindBuffer(GL_ARRAY_BUFFER, nbo);
-	glBufferData(GL_ARRAY_BUFFER, ((((sc->nb_faces_3 + (sc->nb_faces_4 * 2)) * 3) * 3) * 3) * sizeof(float), sc->faces_normals, GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(1);
+	opengl_set_buffers(sc); // opengl_set_buffers.c
 	
-
-	// -------------------------------------------------------------------------- //
-	//	EBO - Buffer object	of indices											  //
-	// -------------------------------------------------------------------------- //
-	// generating element array buff;
-	GLuint ebo;
-	glGenBuffers (1, &ebo);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sc->nb_faces_3 * 3 + (sc->nb_faces_4 * 2) * 3) * sizeof(GL_UNSIGNED_INT), &sc->face_indices[0], GL_STATIC_DRAW);
-
-
-	/*GLuint vao2 = 0;
-
-	glGenVertexArrays(1, &vao2);
-
-	glBindVertexArray(vao2);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo2);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);*/
-	/*int i;
-	for (i = 0; i < ((((sc->nb_faces_3 + (sc->nb_faces_4 * 2)) * 3) * 3) * 3); i += 3)
-	{
-		printf("normal : %fx %fy %fz \n", sc->faces_normals[i], sc->faces_normals[i + 1], sc->faces_normals[i + 2]);
-	}
-	printf("i = %d\n", i);*/
-	
-
-	// -------------------------------------------------------------------------- //
-	//	Shaders																	  //
-	// -------------------------------------------------------------------------- //
-	// Go get Position shader
-	sc->vertex_shader_1 = get_file_content("./shaders/vshader_1.vs");
-	sc->fragment_shader_1 = get_file_content("./shaders/fshader_1.fs");
-
-	// Create shader programme
-	GLuint vs = glCreateShader (GL_VERTEX_SHADER);
-	glShaderSource (vs, 1, (const char * const *)&sc->vertex_shader_1, NULL);
-	glCompileShader (vs);
-	GLuint fs = glCreateShader (GL_FRAGMENT_SHADER);
-	glShaderSource (fs, 1, (const char * const *)&sc->fragment_shader_1, NULL);
-	glCompileShader (fs);
-
-	GLuint shader_programme = glCreateProgram ();
-	glAttachShader (shader_programme, fs);
-	glAttachShader (shader_programme, vs);
-	glLinkProgram (shader_programme);
-	glUseProgram(shader_programme);
+	opengl_load_shaders(sc); // open_gl_load_shaders.c
 
 	// setting uniform values for model
-	GLint uniform_mat = glGetUniformLocation(shader_programme, "identity_matrix");
+	GLint uniform_mat = glGetUniformLocation(sc->main_shader_programme, "identity_matrix");
 	if (uniform_mat != -1)
 	{
 		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_identity[0][0]);
 	}
-	uniform_mat = glGetUniformLocation(shader_programme, "model_recenter_translation_matrix");
+	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "model_recenter_translation_matrix");
 	if (uniform_mat != -1)
 	{
 		set_translation_matrix(sc,
@@ -173,31 +95,31 @@ void	scop(t_scop *sc)
 		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_translation[0][0]);
 	}
 
-	uniform_mat = glGetUniformLocation(shader_programme, "model_translation_matrix");
+	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "model_translation_matrix");
 	if (uniform_mat != -1)
 	{
 		set_translation_matrix(sc, 0.0, 0.0, -1.10);
 		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_translation[0][0]);
 	}
-	uniform_mat = glGetUniformLocation(shader_programme, "scaling_matrix");
+	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "scaling_matrix");
 	if (uniform_mat != -1)
 	{
 		set_scaling_matrix(sc, 0.2);
 		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_scaling[0][0]);
 	}
-	uniform_mat = glGetUniformLocation(shader_programme, "rotation_x_matrix");
+	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "rotation_x_matrix");
 	if (uniform_mat != -1)
 	{
 		set_x_rotation_matrix(sc, 0.0);
 		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_x_rotation[0][0]);
 	}
-	uniform_mat = glGetUniformLocation(shader_programme, "rotation_y_matrix");
+	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "rotation_y_matrix");
 	if (uniform_mat != -1)
 	{
 		set_y_rotation_matrix(sc, 0.0);
 		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_y_rotation[0][0]);
 	}
-	uniform_mat = glGetUniformLocation(shader_programme, "rotation_z_matrix");
+	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "rotation_z_matrix");
 	if (uniform_mat != -1)
 	{
 		set_z_rotation_matrix(sc, 0.0);
@@ -205,21 +127,21 @@ void	scop(t_scop *sc)
 	}
 	
 	// setting uniform values for view (camera pos)
-	uniform_mat = glGetUniformLocation(shader_programme, "view_translation_matrix");
+	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "view_translation_matrix");
 	if (uniform_mat != -1)
 	{
 		set_translation_matrix(sc, -sc->camera_pos.x, -sc->camera_pos.y, -sc->camera_pos.z); // setting camera pos.
 		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_translation[0][0]);
 	}
 
-	uniform_mat = glGetUniformLocation(shader_programme, "view_orientation_matrix");
+	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "view_orientation_matrix");
 	if (uniform_mat != -1)
 	{
 		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_view_orientation[0][0]);
 	}
 	
 	// setting uniform value for projection
-	uniform_mat = glGetUniformLocation(shader_programme, "perspective_projection_matrix");
+	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "perspective_projection_matrix");
 	if (uniform_mat != -1)
 	{
 		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_perspective_projection[0][0]);
@@ -243,11 +165,11 @@ void	scop(t_scop *sc)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	
 	// bind texture to fragment shader uniform sampler2D
-	uniform_mat = glGetUniformLocation(shader_programme, "tex");
+	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "tex");
 	glUniform1i(uniform_mat, 0);
 
 	//set bool for textures
-	glUniform1i(glGetUniformLocation(shader_programme, "has_texture"), GL_FALSE);
+	glUniform1i(glGetUniformLocation(sc->main_shader_programme, "has_texture"), GL_FALSE);
 
 	/*glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureID);*/
@@ -259,7 +181,7 @@ void	scop(t_scop *sc)
 	// -------------------------------------------------------------------------- //
 	// check if shader is compiled and linked;
 	GLint isLinked = 0;
-	glGetProgramiv(shader_programme, GL_LINK_STATUS, &isLinked);
+	glGetProgramiv(sc->main_shader_programme, GL_LINK_STATUS, &isLinked);
 	if (isLinked == GL_FALSE)
 	{
 		printf("Error: Shader programme NOT linked\n");
@@ -275,79 +197,8 @@ void	scop(t_scop *sc)
 	{
 		printf("OpenGL Error: %u\n", err);
 	}
-
-	// -------------------------------------------------------------------------- //
-	//	DRAWING																	  //
-	// -------------------------------------------------------------------------- //
-	float i_axis = 0.0;
-	while (!glfwWindowShouldClose(sc->window))
-	{
-		// wipe the drawing surface clear
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glUseProgram(shader_programme);
-
-		// change val to rotate model.
-		i_axis += 0.005;
-		uniform_mat = glGetUniformLocation(shader_programme, "rotation_y_matrix");
-		if (uniform_mat != -1)
-		{
-			set_y_rotation_matrix(sc, i_axis);
-			glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_y_rotation[0][0]);
-		}
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		//glBindVertexArray (vao);
-
-		// draw points 0-3 from the currently bound VAO with current in-use shader
-		//glDrawArrays (GL_POINTS, 0, sc->nb_vertices * 4);
-		
-		//glDrawArrays (GL_TRIANGLES, 0, ((sc->nb_faces_3 * 3) * 3));
-		glDrawElements(GL_TRIANGLES, (sc->nb_faces_3 * 3 + (sc->nb_faces_4 * 2) * 3), GL_UNSIGNED_INT, (void *)0);
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
-		// update other events like input handling 
-		glfwPollEvents();
-		// put the stuff we've been drawing onto the display
-		glfwSwapBuffers(sc->window);
-	}
-
-// ggaubin's code.	
-/*
-	static void		fifty_fifty(t_object *o, t_mat4 p, t_mat4 view)
-{
-	update_mat(&o->model, o->translation, o->rotation, o->scale);
-	glUseProgram(o->program);
-	glUniformMatrix4fv(o->view_matrix_id, 1, GL_FALSE, (void *)&view);
-	glUniformMatrix4fv(o->projection_matrix_id, 1, GL_FALSE,\
-						(void *)&p);
-	glUniformMatrix4fv(o->model_matrix_id, 1, GL_FALSE, (void *)&(o->model));
-	glUniform1f(o->texture_mix_id, o->texture_mix_coeff);
-	set_ambiant_color(o);
-	glBindTexture(GL_TEXTURE_2D, o->texture);
-	glBindBuffer(GL_ARRAY_BUFFER, o->vbo);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glBindBuffer(GL_ARRAY_BUFFER, o->cvbo);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-}
-
-void			draw(t_object *o, GLenum mode, t_mat4 projection, t_mat4 view)
-{
-	fifty_fifty(o, projection, view);
-	glBindBuffer(GL_ARRAY_BUFFER, o->nbo);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glBindBuffer(GL_ARRAY_BUFFER, o->ubo);
-	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-	glEnableVertexAttribArray(3);
-	glDrawArrays(mode, 0, o->size_mesh / 3);
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(2);
-	glDisableVertexAttribArray(3);
-}
-*/
+	event_init(sc);
+	opengl_drawing(sc);
 }
 
 void		data_init(t_scop *sc)
@@ -370,6 +221,7 @@ void		data_init(t_scop *sc)
 	sc->normals_itmp = 0;
 	sc->face_normals_itmp = 0;
 	sc->faces_uv_itmp = 0;
+	sc->vcolor_itmp = 0;
 	
 	// matrices.
 	init_translation_matrix(sc);
@@ -431,6 +283,11 @@ void		allocate_variables(t_scop *sc)
 		ft_putendl("faces uv allocation failed.");
 		exit (-1);
 	}
+	if (!(sc->vertex_color_values = (float *)malloc(sizeof(float) * (sc->nb_faces_3 * 3 + (sc->nb_faces_4 * 2) * 3) * 3))) // for each face
+	{
+		ft_putendl("faces uv allocation failed.");
+		exit (-1);
+	}
 	ft_putendl("- obj file variables allocated.");
 }
 
@@ -449,6 +306,7 @@ int		main(int argc, char **argv)
 			count_values(&sc); // has to count for mallocating.
 			allocate_variables(&sc);
 			get_values(&sc); // fill values in mallocated vars;
+			set_model_colors(&sc); // set color for each v of each face.
 			scop(&sc);
 		}
 	}
