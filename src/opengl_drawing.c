@@ -19,6 +19,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
+		deallocate_variables(sc);
 		exit (0);
 	}
 	// rotation toggle

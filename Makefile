@@ -33,12 +33,15 @@ src/color.c \
 src/fill_values.c \
 src/set_colors.c \
 src/opengl_set_buffers.c \
+src/opengl_set_matrices.c \
 src/opengl_load_shaders.c \
+src/opengl_load_textures.c \
 src/opengl_drawing.c \
 src/events.c \
 src/generate_uvs.c \
 src/generate_transition_points.c \
 src/allocate_variables.c
+
 
 OBJ = $(SRC:.c=.o)
 

@@ -62,3 +62,28 @@ void		allocate_variables(t_scop *sc)
 	}
 	ft_putendl("- obj file variables allocated.");
 }
+
+void		deallocate_variables(t_scop *sc)
+{
+	t_token		*tmp;
+
+	free(sc->obj_vertices);
+	free(sc->face_indices);
+	free(sc->obj_normals);
+	free(sc->faces_normals);
+	free(sc->faces_vertices);
+	free(sc->obj_tex_coords);
+	free(sc->faces_uv);
+	free(sc->vertex_color_values);
+	free(sc->transition_points);
+	free(sc->default_texture.data);
+	free(sc->second_texture.data);
+	while (sc->obj_token_list)
+	{
+		free(sc->obj_token_list->value_pointer);
+		tmp = sc->obj_token_list;
+		free(tmp);
+		sc->obj_token_list = sc->obj_token_list->next;
+	}
+	exit (0);
+}

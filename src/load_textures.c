@@ -14,42 +14,48 @@
 
 void		load_textures(t_scop *sc)
 {
+	sc->default_texture = load_texture_file(&(sc->default_texture), "resources/default_texture.bmp");
+	sc->second_texture = load_texture_file(&(sc->second_texture), "resources/cat_texture.bmp");
+    return ;
+}
+
+t_bmp_texture	load_texture_file(t_bmp_texture *texture, char *path)
+{
 	// Open the file
 	FILE	*file;
 
-	file = fopen("resources/default_texture.bmp","rb");
+	file = fopen(path,"rb");
 	if (!file)
 	{
 		printf("Image could not be opened\n");
 		exit (-1);
 	}
-	if (fread(sc->default_texture.header, 1, 54, file) != 54)
+	if (fread(texture->header, 1, 54, file) != 54)
 	{ // If not 54 bytes read : problem
     	printf("Not a correct BMP file\n");
     	exit (-1);
 	}
-	sc->default_texture.data_pos = *(int*)&(sc->default_texture.header[10]);
-	sc->default_texture.image_size = *(int*)&(sc->default_texture.header[34]);
-	sc->default_texture.width = *(int*)&(sc->default_texture.header[18]);
-	sc->default_texture.height = *(int*)&(sc->default_texture.header[22]);
+	texture->data_pos = *(int*)&(texture->header[10]);
+	texture->image_size = *(int*)&(texture->header[34]);
+	texture->width = *(int*)&(texture->header[18]);
+	texture->height = *(int*)&(texture->header[22]);
 
-	if ( sc->default_texture.header[0] != 'B' || sc->default_texture.header[1] != 'M' )
+	if ( texture->header[0] != 'B' || texture->header[1] != 'M' )
 	{
 		printf("Not a correct BMP file\n");
 		exit (-1);
 	}
 
 	printf("default_texture infos:\nimage_size: %d \nwidth: %d \nheight: %d\n",
-		sc->default_texture.image_size, sc->default_texture.width, sc->default_texture.height);
+		texture->image_size, texture->width, texture->height);
 
 	// Create a buffer
-	sc->default_texture.data = (unsigned char *)malloc(sizeof(unsigned char) * sc->default_texture.image_size);
+	texture->data = (unsigned char *)malloc(sizeof(unsigned char) * texture->image_size);
 
 	// Read the actual data from the file into the buffer
-	fread(sc->default_texture.data, 1, sc->default_texture.image_size, file);
+	fread(texture->data, 1, texture->image_size, file);
 
 	//Everything is in memory now, the file can be closed
 	fclose(file);
-
-    return ;
+	return (*texture);
 }

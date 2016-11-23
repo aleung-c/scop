@@ -28,6 +28,7 @@ void lex_obj_line(t_scop *sc, char *line, int line_number)
 		cur_token->col_number = col_number;
 		cur_token->value = (char *)malloc(sizeof(char) * strlen(token_str));
 		cur_token->value = strcpy(cur_token->value, token_str);
+		cur_token->value_pointer = cur_token->value;
 		set_token_type(cur_token, token_str);
 		add_token_to_list(sc, sc->obj_token_list, cur_token);
 

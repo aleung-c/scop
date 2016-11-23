@@ -80,98 +80,9 @@ void	scop(t_scop *sc)
 	
 	opengl_load_shaders(sc); // open_gl_load_shaders.c
 
-	// setting uniform values for model
-	GLint uniform_mat = glGetUniformLocation(sc->main_shader_programme, "identity_matrix");
-	if (uniform_mat != -1)
-	{
-		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_identity[0][0]);
-	}
-	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "model_recenter_translation_matrix");
-	if (uniform_mat != -1)
-	{
-		set_translation_matrix(sc,
-			-sc->bounding_box_center.x,
-			-sc->bounding_box_center.y,
-			-sc->bounding_box_center.z);
-		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_translation[0][0]);
-	}
+	opengl_set_matrices(sc); // opengl_set_matrices.c
 
-	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "model_translation_matrix");
-	if (uniform_mat != -1)
-	{
-		set_translation_matrix(sc, 0.0, 0.0, -1.10);
-		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_translation[0][0]);
-	}
-	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "scaling_matrix");
-	if (uniform_mat != -1)
-	{
-		set_scaling_matrix(sc, 0.2);
-		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_scaling[0][0]);
-	}
-	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "rotation_x_matrix");
-	if (uniform_mat != -1)
-	{
-		set_x_rotation_matrix(sc, 0.0);
-		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_x_rotation[0][0]);
-	}
-	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "rotation_y_matrix");
-	if (uniform_mat != -1)
-	{
-		set_y_rotation_matrix(sc, 0.0);
-		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_y_rotation[0][0]);
-	}
-	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "rotation_z_matrix");
-	if (uniform_mat != -1)
-	{
-		set_z_rotation_matrix(sc, 0.0);
-		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_z_rotation[0][0]);
-	}
-	
-	// setting uniform values for view (camera pos)
-	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "view_translation_matrix");
-	if (uniform_mat != -1)
-	{
-		set_translation_matrix(sc, -sc->camera_pos.x, -sc->camera_pos.y, -sc->camera_pos.z); // setting camera pos.
-		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_translation[0][0]);
-	}
-
-	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "view_orientation_matrix");
-	if (uniform_mat != -1)
-	{
-		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_view_orientation[0][0]);
-	}
-	
-	// setting uniform value for projection
-	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "perspective_projection_matrix");
-	if (uniform_mat != -1)
-	{
-		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_perspective_projection[0][0]);
-	}
-
-	// -------------------------------------------------------------------------- //
-	//	Texture loading in the engine.											  //
-	// -------------------------------------------------------------------------- //
-	// Create one OpenGL texture
-	GLuint textureID;
-	glGenTextures(1, &textureID);
-
-	// "Bind" the newly created texture : all future texture functions will modify this texture
-	glBindTexture(GL_TEXTURE_2D, textureID);
-
-	// Give the image to OpenGL
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sc->default_texture.width, sc->default_texture.height, 0,
-		GL_BGR, GL_UNSIGNED_BYTE, sc->default_texture.data);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	
-	// bind texture to fragment shader uniform sampler2D
-	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "tex");
-	glUniform1i(uniform_mat, 0);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-
+	opengl_load_textures(sc); // opengl_load_textures.c
 
 
 	// -------------------------------------------------------------------------- //
@@ -195,7 +106,9 @@ void	scop(t_scop *sc)
 	{
 		printf("OpenGL Error: %u\n", err);
 	}
+
 	event_init(sc);
+	
 	opengl_drawing(sc);
 }
 
@@ -251,6 +164,11 @@ void		data_init(t_scop *sc)
 	set_vec(&sc->light_pos, 2.0, 0.0, 0.0);
 }
 
+void	int_handler(int sig)
+{
+	deallocate_variables(g_global_sc);
+}
+
 int		main(int argc, char **argv)
 {
 	t_scop		sc;
@@ -266,9 +184,9 @@ int		main(int argc, char **argv)
 			parse_obj(&sc); // parse the obj: are these lines corrects ?
 			count_values(&sc); // has to count for mallocating.
 			allocate_variables(&sc);
+			signal(SIGINT, int_handler);
 			get_values(&sc); // fill values in mallocated vars;
 
-			
 			set_model_colors(&sc); // set color for each v of each face.
 			if (sc.nb_texture_vertices == 0)
 			{

@@ -78,6 +78,7 @@ typedef struct						s_token
 	int								col_number;
 	s_token_type					token_type;
 	char							*value;
+	char							*value_pointer; // maintaining ptr to be freed;
 	struct s_token					*next;
 	
 }									t_token;
@@ -177,6 +178,7 @@ typedef struct						s_scop
 	int								transition_value;
 
 	t_bmp_texture					default_texture;
+	t_bmp_texture					second_texture;
 
 	GLuint							main_shader_programme;
 
@@ -312,6 +314,7 @@ void								generate_uvs(t_scop *sc);
 void								generate_transition_points(t_scop *sc);
 
 void								allocate_variables(t_scop *sc);
+void								deallocate_variables(t_scop *sc);
 
 // matrix handling
 //	model matrices
@@ -338,7 +341,7 @@ void								init_view_translation_matrix(t_scop *sc);
 void								init_perspective_projection_matrix(t_scop *sc);
 
 void								load_textures(t_scop *sc);
-
+t_bmp_texture						load_texture_file(t_bmp_texture *texture, char *path);
 
 /*
 **	Displaying the object -> glfw and open gl.
@@ -351,6 +354,9 @@ int									initOpenGL(t_scop *sc);
 
 void								opengl_set_buffers(t_scop *sc);
 void								opengl_load_shaders(t_scop *sc);
+void								opengl_set_matrices(t_scop *sc);
+void								opengl_load_textures(t_scop *sc);
+
 
 void								opengl_drawing(t_scop *sc);
 
