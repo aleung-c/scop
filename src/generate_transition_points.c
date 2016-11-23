@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   generate_uvs.c                                     :+:      :+:    :+:   */
+/*   generate_transition_points.c                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aleung-c <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/11/21 18:08:55 by aleung-c          #+#    #+#             */
-/*   Updated: 2016/11/21 18:08:59 by aleung-c         ###   ########.fr       */
+/*   Created: 2016/11/23 14:09:59 by aleung-c          #+#    #+#             */
+/*   Updated: 2016/11/23 14:10:01 by aleung-c         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/scop.h"
 
-void generate_uvs(t_scop *sc)
+void generate_transition_points(t_scop *sc)
 {
 	unsigned int		*tmp;
 	unsigned int		total_indices;
@@ -23,23 +23,8 @@ void generate_uvs(t_scop *sc)
 	total_indices = (sc->total_faces * 3);
 	while (i != total_indices)
 	{
-		sc->faces_uv[sc->faces_uv_itmp] = 1.0;
-		sc->faces_uv_itmp++;
-		sc->faces_uv[sc->faces_uv_itmp] = 0.0;
-		sc->faces_uv_itmp++;
-
-		sc->faces_uv[sc->faces_uv_itmp] = 0.0;
-		sc->faces_uv_itmp++;
-		sc->faces_uv[sc->faces_uv_itmp] = 0.0;
-		sc->faces_uv_itmp++;
-
-		sc->faces_uv[sc->faces_uv_itmp] = 0.0;
-		sc->faces_uv_itmp++;
-		sc->faces_uv[sc->faces_uv_itmp] = 1.0;
-		sc->faces_uv_itmp++;
-
-		i += 3;
-		tmp += 3;
+		sc->transition_points[sc->tpoints_i] = 0;
+		sc->tpoints_i++;
+		i++;
 	}
-
 }

@@ -170,8 +170,11 @@ typedef struct						s_scop
 	int								faces_uv_itmp;
 
 	float							*vertex_color_values; // for faces of diff colors.
-	float							*vertex_color_values_copy;
 	int								vcolor_itmp;
+
+	int								*transition_points;
+	int								tpoints_i;
+	int								transition_value;
 
 	t_bmp_texture					default_texture;
 
@@ -182,7 +185,8 @@ typedef struct						s_scop
 	GLuint							vbo; // vertex buffer object
 	GLuint							nbo; // normals buffer object
 	GLuint							cbo; // color buffer object
-	GLuint							ubo; // color buffer object
+	GLuint							ubo; // uv buffer object
+	GLuint							tbo; // transition flags buffer object
 
 	GLuint							ebo; // element buffer objects -> indices.
 	GLuint							fvbo; // face vertices buffer.
@@ -225,7 +229,6 @@ typedef struct						s_scop
 	t_vec3							bounding_box_max;
 	t_vec3							bounding_box_min;
 
-
 	float							i_axis;
 
 	// events
@@ -243,7 +246,6 @@ typedef struct						s_scop
 	int 							is_rotating_y;
 	int 							is_rotating_x;
 	int 							is_rotating_z;
-	
 
 }									t_scop;
 
@@ -307,6 +309,7 @@ void								set_bounding_box_center(t_scop *sc);
 
 void								set_model_colors(t_scop *sc);
 void								generate_uvs(t_scop *sc);
+void								generate_transition_points(t_scop *sc);
 
 void								allocate_variables(t_scop *sc);
 
@@ -353,7 +356,7 @@ void								opengl_drawing(t_scop *sc);
 
 void								event_init(t_scop *sc);
 void								event_process(t_scop *sc);
-
+void								transition_one_face(t_scop *sc);
 
 /*
 **	utils

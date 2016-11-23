@@ -22,7 +22,9 @@ void		event_init(t_scop *sc) // before the drawing loop.
 	sc->is_rotating_z = 0;
 	sc->using_array = 1;
 	sc->transition_counter = 0;
+	sc->transition_value = 0;
 	sc->buffer_i = 0;
+	glUniform1i(glGetUniformLocation(sc->main_shader_programme, "has_texture"), GL_FALSE);
 }
 
 void		event_process(t_scop *sc) // at each draw loop.
@@ -103,35 +105,32 @@ void		event_process(t_scop *sc) // at each draw loop.
 	transition_color = 0.0;
 	if (sc->in_transition == 1)
 	{
-		// change one vertex color
-		sc->vertex_color_values[sc->buffer_i] = 0.0;
-		sc->buffer_i++;
-		sc->vertex_color_values[sc->buffer_i] = 0.0;
-		sc->buffer_i++;
-		sc->vertex_color_values[sc->buffer_i] = 0.0;
-		sc->buffer_i++;
+		transition_one_face(sc);
+		if (sc->nb_vertices > 1000)
+		{
+			transition_one_face(sc);
+			transition_one_face(sc);
+			transition_one_face(sc);
+		}
+		if (sc->nb_vertices > 3000)
+		{
+			transition_one_face(sc);
+			transition_one_face(sc);
+			transition_one_face(sc);
 
-		/*sc->vertex_color_values[sc->buffer_i] = 0.0;
-		sc->buffer_i++;
-		sc->vertex_color_values[sc->buffer_i] = 0.0;
-		sc->buffer_i++;
-		sc->vertex_color_values[sc->buffer_i] = 0.0;
-		sc->buffer_i++;
+			transition_one_face(sc);
+			transition_one_face(sc);
+			transition_one_face(sc);
+		}
 
-		sc->vertex_color_values[sc->buffer_i] = 0.0;
-		sc->buffer_i++;
-		sc->vertex_color_values[sc->buffer_i] = 0.0;
-		sc->buffer_i++;
-		sc->vertex_color_values[sc->buffer_i] = 0.0;
-		sc->buffer_i++;*/
 
-		glBindBuffer(GL_ARRAY_BUFFER, sc->cbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (sc->total_faces * 3) * 3, sc->vertex_color_values, GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, sc->tbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (sc->total_faces * 3), sc->transition_points, GL_STATIC_DRAW);
 
 		sc->transition_counter++;
 		
 	}
-	if (sc->buffer_i == (sc->total_faces * 3) * 3)
+	if (sc->buffer_i >= (sc->total_faces * 3))
 	{
 		sc->in_transition = 0;
 		sc->on_standby = 1;
@@ -139,4 +138,13 @@ void		event_process(t_scop *sc) // at each draw loop.
 		glUniform1i(glGetUniformLocation(sc->main_shader_programme, "has_texture"), GL_TRUE);
 	}
 
+}
+
+void	transition_one_face(t_scop *sc)
+{
+	if (sc->buffer_i < (sc->total_faces * 3))
+	{
+		sc->transition_points[sc->buffer_i] = sc->transition_value;
+		sc->buffer_i++;
+	}
 }

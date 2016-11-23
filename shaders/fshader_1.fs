@@ -2,17 +2,22 @@
 
 in vec4					vertex_position;
 in vec3					vertex_normal;
-in vec3					color;
+flat in vec3					color;
 in vec2					texture_coordinates;
-out vec4				frag_colour;
+flat in int				t_flag;
+
+
 
 uniform bool			has_texture = false;
 uniform bool			is_transitionning = false;
 uniform sampler2D		tex;
 
+// the final color the fragment will take.
+out vec4				frag_colour;
+
 void main ()
 {
-	if (!has_texture)
+	if (t_flag == 0)
 	{
 		//frag_colour = vertex_position;
 		frag_colour = vec4(color, 1.0);
@@ -20,7 +25,8 @@ void main ()
 	else
 	{
 		//vec2 tex_UV = vec2(vertex_normal.x, vertex_normal.y);
-		frag_colour = texture(tex, texture_coordinates);
+		vec4	texel = texture(tex, texture_coordinates);
+		frag_colour = texel;
 		//frag_colour = vec4(color, 1.0);
 		
 	}

@@ -29,7 +29,7 @@ int		initGLFW(t_scop *sc)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	sc->window = glfwCreateWindow(640, 480, "Hello Triangle", NULL, NULL);
+	sc->window = glfwCreateWindow(640, 480, "aleung-c's scop", NULL, NULL);
 	if (!sc->window)
 	{
 		ft_putendl("ERROR: could not open window with GLFW3");
@@ -169,8 +169,8 @@ void	scop(t_scop *sc)
 	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "tex");
 	glUniform1i(uniform_mat, 0);
 
-	/*glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureID);*/
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureID);
 
 
 
@@ -221,7 +221,8 @@ void		data_init(t_scop *sc)
 	sc->face_normals_itmp = 0;
 	sc->faces_uv_itmp = 0;
 	sc->vcolor_itmp = 0;
-	
+	sc->tpoints_i = 0;
+
 	// matrices.
 	init_translation_matrix(sc);
 	init_scaling_matrix(sc);
@@ -250,57 +251,6 @@ void		data_init(t_scop *sc)
 	set_vec(&sc->light_pos, 2.0, 0.0, 0.0);
 }
 
-void		allocate_variables(t_scop *sc)
-{
-	sc->total_faces = (sc->nb_faces_3 + (sc->nb_faces_4 * 2));
-	if (!(sc->obj_vertices = (float *)malloc(sizeof(float) * sc->nb_vertices * 4))) // v
-	{
-		ft_putendl("vertices allocation failed.");
-		exit (-1);
-	}
-	if (!(sc->face_indices = (unsigned int *)malloc(sc->total_faces * 3 * sizeof(GL_UNSIGNED_INT)))) // indices
-	{
-		ft_putendl("faces - indices allocation failed.");
-		exit (-1);
-	}
-	if (!(sc->obj_normals = (float *)malloc(sizeof(float) * (sc->nb_normals_vertices) * 3))) // vn
-	{
-		ft_putendl("normal values allocation failed.");
-		exit (-1);
-	}
-	if (!(sc->faces_normals = (float *)malloc(sizeof(float) * ((sc->total_faces * 3) * 3) * 3))) // for each face
-	{
-		ft_putendl("faces normals allocation failed.");
-		exit (-1);
-	}
-	if (!(sc->faces_vertices = (float *)malloc(sizeof(float) * (sc->total_faces * 3) * 4))) // for each face
-	{
-		ft_putendl("faces vertices allocation failed.");
-		exit (-1);
-	}
-	if (!(sc->obj_tex_coords = (float *)malloc(sizeof(float) * sc->nb_texture_vertices * 2))) // vt
-	{
-		ft_putendl("vt values allocation failed.");
-		exit (-1);
-	}
-	if (!(sc->faces_uv = (float *)malloc(sizeof(float) * sc->total_faces * 3 * 2))) // for each face
-	{
-		ft_putendl("faces uv allocation failed.");
-		exit (-1);
-	}
-	if (!(sc->vertex_color_values = (float *)malloc(sizeof(float) * (sc->total_faces * 3) * 3))) // for each face
-	{
-		ft_putendl("color buffer allocation failed.");
-		exit (-1);
-	}
-	if (!(sc->vertex_color_values_copy = (float *)malloc(sizeof(float) * (sc->total_faces * 3) * 3))) // for each face
-	{
-		ft_putendl("color buffer copy allocation failed.");
-		exit (-1);
-	}
-	ft_putendl("- obj file variables allocated.");
-}
-
 int		main(int argc, char **argv)
 {
 	t_scop		sc;
@@ -317,11 +267,14 @@ int		main(int argc, char **argv)
 			count_values(&sc); // has to count for mallocating.
 			allocate_variables(&sc);
 			get_values(&sc); // fill values in mallocated vars;
+
+			
 			set_model_colors(&sc); // set color for each v of each face.
 			if (sc.nb_texture_vertices == 0)
 			{
 				generate_uvs(&sc);
 			}
+			generate_transition_points(&sc);
 			scop(&sc);
 		}
 	}

@@ -71,6 +71,11 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	{
 		sc->on_standby = 0; // cant press transition button now until transition done
 		sc->in_transition = 1;
+		sc->buffer_i = 0; // reset array change counter.
+		if (sc->transition_value == 0)
+			sc->transition_value = 1;
+		else
+			sc->transition_value = 0;
 		//printf("goto transition\n");
 	}
 	// bonus : using ebo.
@@ -100,6 +105,7 @@ void		opengl_drawing(t_scop *sc)
 		glEnableVertexAttribArray(1);
 		glEnableVertexAttribArray(2);
 		glEnableVertexAttribArray(4);
+		glEnableVertexAttribArray(5);
 
 		// draw points 0-3 from the currently bound VAO with current in-use shader
 		//glDrawArrays (GL_POINTS, 0, sc->nb_vertices * 4);
@@ -109,20 +115,21 @@ void		opengl_drawing(t_scop *sc)
 			glBindBuffer(GL_ARRAY_BUFFER, sc->fvbo);
 			glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
 			glEnableVertexAttribArray(0);
-			glDrawArrays(GL_TRIANGLES, 0, ((((sc->nb_faces_3 + (sc->nb_faces_4 * 2)) * 3) * 4)));
+			glDrawArrays(GL_TRIANGLES, 0, (((sc->total_faces * 3) * 4)));
 		}
 		else
 		{
 			glBindBuffer(GL_ARRAY_BUFFER, sc->vbo);
 			glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
 			glEnableVertexAttribArray(0);
-			glDrawElements(GL_TRIANGLES, (sc->nb_faces_3 * 3 + (sc->nb_faces_4 * 2) * 3), GL_UNSIGNED_INT, (void *)0);
+			glDrawElements(GL_TRIANGLES, (sc->total_faces * 3), GL_UNSIGNED_INT, (void *)0);
 		}
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);
 		glDisableVertexAttribArray(3);
 		glDisableVertexAttribArray(4);
+		glDisableVertexAttribArray(5);
 
 		glfwSetKeyCallback(sc->window, key_callback);
 		// update other events like input handling 
