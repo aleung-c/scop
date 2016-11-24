@@ -15,7 +15,7 @@
 void		set_model_colors(t_scop *sc)
 {
 	unsigned int		total_indices;
-	int 				i;
+	unsigned int		i;
 	float				cur_color;
 
 	i = 0;

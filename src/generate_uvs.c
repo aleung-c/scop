@@ -16,7 +16,7 @@ void generate_uvs(t_scop *sc)
 {
 	unsigned int		*tmp;
 	unsigned int		total_indices;
-	int 				i;
+	unsigned int		i;
 
 	i = 0;
 	tmp = sc->face_indices;

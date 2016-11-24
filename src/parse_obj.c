@@ -107,10 +107,10 @@ void		check_token_order(t_scop *sc)
 			{
 				print_parser_error(tmp, "First value of line must be a word");
 			}
-			if ((tmp->next == NULL || tmp->next->line_number != tmp->line_number) && strcmp(tmp->value, "g"))
-			{
-				print_parser_error(tmp, "Solo word on a line");
-			}
+			// if ((tmp->next == NULL || tmp->next->line_number != tmp->line_number) && strcmp(tmp->value, "g"))
+			// {
+			// 	print_parser_error(tmp, "Solo word on a line");
+			// }
 		}
 		tmp = tmp->next;
 	}

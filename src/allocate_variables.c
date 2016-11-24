@@ -14,7 +14,7 @@
 
 void		allocate_variables(t_scop *sc)
 {
-	sc->total_faces = (sc->nb_faces_3 + (sc->nb_faces_4 * 2));
+	sc->total_faces = (sc->nb_faces_3 + (sc->nb_faces_4 * 2) + (sc->nb_indices_more));
 	if (!(sc->obj_vertices = (float *)malloc(sizeof(float) * sc->nb_vertices * 4))) // v
 	{
 		ft_putendl("vertices allocation failed.");

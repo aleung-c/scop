@@ -15,7 +15,9 @@ NAME = scop
 HEADER = includes/scop.h
 
 SRC = src/scop.c \
+src/data_init.c \
 src/get_obj.c \
+src/count_values.c \
 src/parse_obj.c \
 src/lex_obj.c \
 src/dictionnary.c \
@@ -47,12 +49,12 @@ OBJ = $(SRC:.c=.o)
 
 LIB = ./libft/
 
-GL = -I/Library/Frameworks/OpenGL.framework/Headers -framework OpenGL
+GL = -framework OpenGL
 GLFW = -framework Cocoa -framework CoreVideo -framework IOKit -framework GLUT -L./glfw-3.2.1/src -lglfw3
 
-SDL2 = -lmlx -I/Library/Frameworks/OpenGL.framework/Headers -framework OpenGL -I/Library/Frameworks/SDL2.framework/Headers -framework SDL2 -framework AppKit
+SDL2 = -framework OpenGL -I/Library/Frameworks/SDL2.framework/Headers -framework SDL2 -framework AppKit
 
-CC = gcc -g -O2
+CC = gcc -g -O2 -Wall -Werror -Wextra
 #-march=native
 
 

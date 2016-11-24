@@ -17,6 +17,8 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	GLuint		uniform_mat;
 
 	t_scop *sc = g_global_sc;
+	if (scancode && mods)
+	{}
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
@@ -91,8 +93,8 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	}
 	else if (key == GLFW_KEY_C && action == GLFW_PRESS)
 	{
-		if (sc->zoom_level > 0.05f)
-			sc->zoom_level -= 0.05f;
+		if (sc->zoom_level > 0.01f)
+			sc->zoom_level -= 0.01f;
 		if (fabsf(sc->zoom_level - (float)0.0) < (float)0.0000001)
 			sc->zoom_level = 0.05f;
 		//printf("zoom level = %f\n", sc->zoom_level);

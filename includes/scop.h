@@ -36,8 +36,6 @@
 #  define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
 #  include <OpenGL/gl3.h>
 #  include <OpenGL/gl3ext.h>
-// #  include <OpenGL/gl.h>
-// # include <OpenGL/glext.h>
 #  include <OpenGL/glu.h>
 #  include <GLUT/glut.h>
 
@@ -137,6 +135,7 @@ typedef struct						s_scop
 	unsigned long int				nb_faces_3;						// f
 	unsigned long int				nb_faces_4;
 	unsigned long int				nb_faces_more;
+	unsigned long int				nb_indices_more;
 	unsigned long int				nb_obj;
 	unsigned long int				nb_groups;
 	unsigned long int				nb_materials;
@@ -244,7 +243,7 @@ typedef struct						s_scop
 	float							zoom_level;
 
 	int								transition_counter;
-	int								buffer_i;
+	unsigned int					buffer_i;
 
 	int								is_rotating;
 	int 							is_rotating_y;
@@ -299,7 +298,7 @@ void								fill_normals(t_scop *sc, t_token *token);
 void								fill_face(t_scop *sc, t_token *token);
 void								fill_face3(t_scop *sc, t_token *token);
 void								fill_face4(t_scop *sc, t_token *token);
-
+void								fill_face_more(t_scop *sc, t_token *token);
 
 void								fill_face_split_indice(t_scop *sc, t_token *inline_token);
 void								fill_face_vertices(t_scop *sc, unsigned int indice);

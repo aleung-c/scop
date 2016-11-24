@@ -27,12 +27,10 @@ int get_obj(t_scop *sc, char *arg)
 	}
 	else
 	{
-
 		sc->fp = fp;
 		buf = NULL;
 		buf_size = 0;
 		line_number = 0;
-
 		sc->obj_token_list = NULL;
 		while ((getline(&buf, &buf_size, fp)) > 0)
 		{
