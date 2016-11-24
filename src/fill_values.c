@@ -57,10 +57,10 @@ void		fill_face_split_indice(t_scop *sc, t_token *inline_token)
 		{
 			add_face_normal_from_indice(sc, splitted_indice);
 		}
-		else // pos 2 et x/x/x => uv index.
-		{
-			//add_face_uv_from_indice(sc, splitted_indice);
-		}
+		// else // pos 2 et x/x/x => uv index.
+		// {
+		// 	//add_face_uv_from_indice(sc, splitted_indice);
+		// }
 		splitted_indice = strtok(NULL, "/");
 		pos_in_indice++;
 	}

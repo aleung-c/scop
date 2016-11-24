@@ -142,10 +142,7 @@ int		main(int argc, char **argv)
 			signal(SIGINT, int_handler);
 			get_values(&sc); // fill values in mallocated vars;
 			set_model_colors(&sc); // set color for each v of each face.
-			// if (sc.nb_texture_vertices == 0)
-			// {
-				generate_uvs(&sc);
-			// }
+			generate_uvs(&sc);
 			generate_transition_points(&sc);
 			scop(&sc);
 		}
