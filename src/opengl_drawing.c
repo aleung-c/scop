@@ -14,8 +14,9 @@
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	t_scop *sc = g_global_sc;
+	GLuint		uniform_mat;
 
+	t_scop *sc = g_global_sc;
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
@@ -78,6 +79,46 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		else
 			sc->transition_value = 0;
 		//printf("goto transition\n");
+	}
+	// texture switch
+	else if (key == GLFW_KEY_G && action == GLFW_PRESS)
+	{
+		if (sc->cur_texture_id == 0)
+			sc->cur_texture_id = 1;
+		else
+			sc->cur_texture_id = 0;
+		glUniform1i(glGetUniformLocation(sc->main_shader_programme, "texture_id"), sc->cur_texture_id);
+	}
+	else if (key == GLFW_KEY_C && action == GLFW_PRESS)
+	{
+		if (sc->zoom_level > 0.05f)
+			sc->zoom_level -= 0.05f;
+		if (fabsf(sc->zoom_level - (float)0.0) < (float)0.0000001)
+			sc->zoom_level = 0.05f;
+		//printf("zoom level = %f\n", sc->zoom_level);
+		set_scaling_matrix(sc, sc->zoom_level);
+		// set model scaling matrice.
+		uniform_mat = glGetUniformLocation(sc->main_shader_programme, "scaling_matrix");
+		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_scaling[0][0]);
+	}
+	else if (key == GLFW_KEY_V && action == GLFW_PRESS)
+	{
+		if (sc->zoom_level < 2.0)
+			sc->zoom_level += 0.05;
+		set_scaling_matrix(sc, sc->zoom_level);
+		//printf("zoom level = %f\n", sc->zoom_level);
+		// set model scaling matrice.
+		uniform_mat = glGetUniformLocation(sc->main_shader_programme, "scaling_matrix");
+		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_scaling[0][0]);
+	}
+	// step back
+	else if (key == GLFW_KEY_B && action == GLFW_PRESS)
+	{
+		set_translation_matrix(sc, -sc->camera_pos.x, -sc->camera_pos.y, -sc->camera_pos.z - 20.0);
+		//printf("zoom level = %f\n", sc->zoom_level);
+		// set model scaling matrice.
+		uniform_mat = glGetUniformLocation(sc->main_shader_programme, "view_translation_matrix");
+		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_translation[0][0]);
 	}
 	// bonus : using ebo.
 	else if (key == GLFW_KEY_T && action == GLFW_PRESS)

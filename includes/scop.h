@@ -240,6 +240,8 @@ typedef struct						s_scop
 	int								in_transition;
 	int								is_textured;
 	int								using_array;
+	int								cur_texture_id;
+	float							zoom_level;
 
 	int								transition_counter;
 	int								buffer_i;
@@ -310,6 +312,8 @@ void								set_bounding_box_limits(t_scop *sc);
 void								set_bounding_box_center(t_scop *sc);
 
 void								set_model_colors(t_scop *sc);
+void								add_one_face_color(t_scop *sc, float cur_color);
+
 void								generate_uvs(t_scop *sc);
 void								generate_transition_points(t_scop *sc);
 

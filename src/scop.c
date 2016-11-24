@@ -145,6 +145,7 @@ void		data_init(t_scop *sc)
 	init_z_rotation_matrix(sc);
 
 	// scene settings
+	sc->zoom_level = 0.2;
 	sc->camera_pos.x = 0.0;
 	sc->camera_pos.y = 0.0;
 	sc->camera_pos.z = 0.0;
@@ -186,7 +187,6 @@ int		main(int argc, char **argv)
 			allocate_variables(&sc);
 			signal(SIGINT, int_handler);
 			get_values(&sc); // fill values in mallocated vars;
-
 			set_model_colors(&sc); // set color for each v of each face.
 			if (sc.nb_texture_vertices == 0)
 			{

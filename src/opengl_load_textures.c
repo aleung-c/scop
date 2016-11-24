@@ -19,8 +19,11 @@ void opengl_load_textures(t_scop *sc)
 	// -------------------------------------------------------------------------- //
 	// Create one OpenGL texture
 	GLuint			textureID;
+	GLuint			textureID2;
+	GLuint			uniform_mat;
 
 	glGenTextures(1, &textureID);
+	glActiveTexture(GL_TEXTURE0);
 	// "Bind" the newly created texture : all future texture functions will modify this texture
 	glBindTexture(GL_TEXTURE_2D, textureID);
 
@@ -32,9 +35,28 @@ void opengl_load_textures(t_scop *sc)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	
 	// bind texture to fragment shader uniform sampler2D
-	GLuint uniform_mat = glGetUniformLocation(sc->main_shader_programme, "tex");
+	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "texture_0");
 	glUniform1i(uniform_mat, 0);
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureID);
+	
+	//glBindTexture(GL_TEXTURE_2D, textureID);
+
+
+
+	glGenTextures(1, &textureID2);
+	glActiveTexture(GL_TEXTURE1);
+	// "Bind" the newly created texture : all future texture functions will modify this texture
+	glBindTexture(GL_TEXTURE_2D, textureID2);
+
+	// Give the image to OpenGL
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sc->second_texture.width, sc->second_texture.height, 0,
+		GL_BGR, GL_UNSIGNED_BYTE, sc->second_texture.data);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	
+	// bind texture to fragment shader uniform sampler2D
+	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "texture_1");
+	glUniform1i(uniform_mat, 1);
+	//glBindTexture(GL_TEXTURE_2D, textureID2);
 }

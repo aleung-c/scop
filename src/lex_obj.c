@@ -31,7 +31,6 @@ void lex_obj_line(t_scop *sc, char *line, int line_number)
 		cur_token->value_pointer = cur_token->value;
 		set_token_type(cur_token, token_str);
 		add_token_to_list(sc, sc->obj_token_list, cur_token);
-
 		token_str = strtok(NULL, " \t\n");
 		col_number++;
 	}
@@ -39,9 +38,8 @@ void lex_obj_line(t_scop *sc, char *line, int line_number)
 
 void set_token_type(t_token *cur_token, char *token_str)
 {
-	if (regex_match(token_str, "^[a-zA-Z]+$"))
+	if (regex_match(token_str, "^[a-zA-Z0-9]+$"))
 	{
-		//printf("match word\n");
 		cur_token->token_type = word;
 	}
 	else if (regex_match(token_str, "^[a-zA-Z0-9_,\\r\\n\\t\\f\\v-]+\\.[A-Za-z]+$"))

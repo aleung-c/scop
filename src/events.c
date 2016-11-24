@@ -106,18 +106,35 @@ void		event_process(t_scop *sc) // at each draw loop.
 	if (sc->in_transition == 1)
 	{
 		transition_one_face(sc);
-		if (sc->nb_vertices > 1000)
+		if (sc->total_faces > 1000)
 		{
 			transition_one_face(sc);
 			transition_one_face(sc);
 			transition_one_face(sc);
 		}
-		if (sc->nb_vertices > 3000)
+		if (sc->total_faces > 3000)
 		{
 			transition_one_face(sc);
 			transition_one_face(sc);
 			transition_one_face(sc);
-
+			transition_one_face(sc);
+			transition_one_face(sc);
+			transition_one_face(sc);
+		}
+		if (sc->total_faces > 5000)
+		{
+			transition_one_face(sc);
+			transition_one_face(sc);
+			transition_one_face(sc);
+			transition_one_face(sc);
+			transition_one_face(sc);
+			transition_one_face(sc);
+		}
+		if (sc->total_faces > 7000)
+		{
+			transition_one_face(sc);
+			transition_one_face(sc);
+			transition_one_face(sc);
 			transition_one_face(sc);
 			transition_one_face(sc);
 			transition_one_face(sc);
@@ -135,7 +152,7 @@ void		event_process(t_scop *sc) // at each draw loop.
 		sc->in_transition = 0;
 		sc->on_standby = 1;
 		//set bool for textures
-		glUniform1i(glGetUniformLocation(sc->main_shader_programme, "has_texture"), GL_TRUE);
+		//glUniform1i(glGetUniformLocation(sc->main_shader_programme, "has_texture"), GL_TRUE);
 	}
 
 }

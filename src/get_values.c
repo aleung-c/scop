@@ -24,17 +24,15 @@ void count_values(t_scop *sc)
 		if (token->col_number == 0)
 		{
 			if (!strcmp(token->value, "v"))
-				sc->nb_vertices += 1;
+				sc->nb_vertices++;
 			else if (!strcmp(token->value, "vt"))
-				sc->nb_texture_vertices += 1;
+				sc->nb_texture_vertices++;
 			else if (!strcmp(token->value, "vn"))
-				sc->nb_normals_vertices += 1;
+				sc->nb_normals_vertices++;
 			else if (!strcmp(token->value, "vp"))
-				sc->nb_parameter_space_vertices += 1;
-			// face handling
+				sc->nb_parameter_space_vertices++;
 			else if (strcmp(token->value, "f") == 0)
 			{
-				//sc->nb_faces_3 += 1;
 				inline_i = 0;
 				sc->inline_token = token->next;
 				while (sc->inline_token && sc->inline_token->line_number == token->line_number)
@@ -42,7 +40,6 @@ void count_values(t_scop *sc)
 					inline_i++;
 					sc->inline_token = sc->inline_token->next;
 				}
-				//printf("\n");
 				if (inline_i == 3)
 					sc->nb_faces_3 += 1;
 				else if (inline_i == 4)
@@ -53,10 +50,8 @@ void count_values(t_scop *sc)
 		}
 		token = token->next;
 	}
-
 	ft_putstr(KGRN "Object file datas:" KRESET);
 	ft_putchar('\n');
-
 	printf("Nb of v  = %lu\n", sc->nb_vertices);
 	printf("Nb of vt = %lu\n", sc->nb_texture_vertices);
 	printf("Nb of vn = %lu\n", sc->nb_normals_vertices);
@@ -81,21 +76,13 @@ void get_values(t_scop *sc)
 	while (token)
 	{
 		if (!strcmp(token->value, "v"))
-		{
 			fill_vertex(sc, token);
-		}
 		else if (!strcmp(token->value, "f"))
-		{
 			fill_face(sc, token);
-		}
 		else if (!strcmp(token->value, "vt"))
-		{
 			fill_tex_coord(sc, token);
-		}
 		else if (!strcmp(token->value, "vn"))
-		{
 			fill_normals(sc, token);
-		}
 		token = token->next;
 	}
 	set_bounding_box_center(sc);
@@ -126,7 +113,6 @@ void						set_bounding_box_limits(t_scop *sc)
 {
 	if (sc->inline_i == 0)
 	{
-		// x pos;
 		if (sc->obj_vertices[sc->itmp] > sc->bounding_box_max.x)
 			sc->bounding_box_max.x = sc->obj_vertices[sc->itmp];
 		if (sc->obj_vertices[sc->itmp] < sc->bounding_box_min.x)
@@ -134,7 +120,6 @@ void						set_bounding_box_limits(t_scop *sc)
 	}
 	else if (sc->inline_i == 1)
 	{
-		// y pos;
 		if (sc->obj_vertices[sc->itmp] > sc->bounding_box_max.y)
 			sc->bounding_box_max.y = sc->obj_vertices[sc->itmp];
 		if (sc->obj_vertices[sc->itmp] < sc->bounding_box_min.y)
@@ -142,7 +127,6 @@ void						set_bounding_box_limits(t_scop *sc)
 	}
 	else if (sc->inline_i == 2)
 	{
-		// z pos;
 		if (sc->obj_vertices[sc->itmp] > sc->bounding_box_max.z)
 			sc->bounding_box_max.z = sc->obj_vertices[sc->itmp];
 		if (sc->obj_vertices[sc->itmp] < sc->bounding_box_min.z)
@@ -170,38 +154,30 @@ void						fill_tex_coord(t_scop *sc, t_token *token)
 
 void						fill_normals(t_scop *sc, t_token *token)
 {
-	//int i = 0;
 	sc->inline_token = token->next;
 	while (sc->inline_token && sc->inline_token->line_number == token->line_number)
 	{
 		sc->obj_normals[sc->normals_itmp] = strtof(&(*sc->inline_token->value), &sc->inline_token->value);
 		sc->normals_itmp++;
 		sc->inline_token = sc->inline_token->next;
-		//i++;
 	}
-	//printf("added %d normal vals \n", i);
 }
 
 void						fill_face(t_scop *sc, t_token *token)
 {
-	// TODO: take the x/x/x into account.
 	sc->inline_i = 0;
 	sc->inline_token = token->next;
-	// count nb of indices
 	while (sc->inline_token && sc->inline_token->line_number == token->line_number)
 	{
-		//printf("%s ", sc->inline_token->value);
 		sc->inline_i++;
 		sc->inline_token = sc->inline_token->next;
 	}
-	//printf("\n");
-
 	// Filling a face_3
 	if (sc->inline_i == 3)
 	{
 		fill_face3(sc, token);
 	}
-	// Filling a face_4 - converting it into a triangle.
+	// Filling a face_4 - converting it into two triangles.
 	if (sc->inline_i == 4)
 	{
 		fill_face4(sc, token);

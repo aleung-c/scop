@@ -27,6 +27,7 @@ int get_obj(t_scop *sc, char *arg)
 	}
 	else
 	{
+
 		sc->fp = fp;
 		buf = NULL;
 		buf_size = 0;

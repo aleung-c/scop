@@ -39,7 +39,7 @@ void opengl_set_matrices(t_scop *sc)
 	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "scaling_matrix");
 	if (uniform_mat != -1)
 	{
-		set_scaling_matrix(sc, 0.2);
+		set_scaling_matrix(sc, sc->zoom_level);
 		glUniformMatrix4fv(uniform_mat, 1, GL_FALSE, &sc->matrix_scaling[0][0]);
 	}
 	uniform_mat = glGetUniformLocation(sc->main_shader_programme, "rotation_x_matrix");

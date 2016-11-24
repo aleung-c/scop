@@ -23,32 +23,22 @@ void		set_model_colors(t_scop *sc)
 	cur_color = 0.3;
 	while (i < total_indices)
 	{
-		//printf("current indice = %d\n", *tmp);
 		cur_color = set_gray_level(cur_color + 0.3);
-		sc->vertex_color_values[sc->vcolor_itmp] = cur_color;
-		sc->vcolor_itmp++;
-		sc->vertex_color_values[sc->vcolor_itmp] = cur_color;
-		sc->vcolor_itmp++;
-		sc->vertex_color_values[sc->vcolor_itmp] = cur_color;
-		sc->vcolor_itmp++;
-
-		sc->vertex_color_values[sc->vcolor_itmp] = cur_color;
-		sc->vcolor_itmp++;
-		sc->vertex_color_values[sc->vcolor_itmp] = cur_color;
-		sc->vcolor_itmp++;
-		sc->vertex_color_values[sc->vcolor_itmp] = cur_color;
-		sc->vcolor_itmp++;
-
-		sc->vertex_color_values[sc->vcolor_itmp] = cur_color;
-		sc->vcolor_itmp++;
-		sc->vertex_color_values[sc->vcolor_itmp] = cur_color;
-		sc->vcolor_itmp++;
-		sc->vertex_color_values[sc->vcolor_itmp] = cur_color;
-		sc->vcolor_itmp++;
-		//printf("added color %f\n", cur_color);
-		
+		add_one_face_color(sc, cur_color);
+		add_one_face_color(sc, cur_color);
+		add_one_face_color(sc, cur_color);		
 		i += 3;
 	}
+}
+
+void		add_one_face_color(t_scop *sc, float cur_color)
+{
+	sc->vertex_color_values[sc->vcolor_itmp] = cur_color;
+	sc->vcolor_itmp++;
+	sc->vertex_color_values[sc->vcolor_itmp] = cur_color;
+	sc->vcolor_itmp++;
+	sc->vertex_color_values[sc->vcolor_itmp] = cur_color;
+	sc->vcolor_itmp++;
 }
 
 float		set_gray_level(float color)

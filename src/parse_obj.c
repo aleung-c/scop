@@ -61,7 +61,6 @@ void						print_tokens(t_scop *sc)
 			printf("token type = indices\n");
 		}
 		ft_putchar('\n');
-		// sleep(1);
 		tmp = tmp->next;
 		i++;
 	}
@@ -108,7 +107,7 @@ void		check_token_order(t_scop *sc)
 			{
 				print_parser_error(tmp, "First value of line must be a word");
 			}
-			if (tmp->next == NULL || tmp->next->line_number != tmp->line_number)
+			if ((tmp->next == NULL || tmp->next->line_number != tmp->line_number) && strcmp(tmp->value, "g"))
 			{
 				print_parser_error(tmp, "Solo word on a line");
 			}

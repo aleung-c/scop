@@ -15,7 +15,7 @@
 void		load_textures(t_scop *sc)
 {
 	sc->default_texture = load_texture_file(&(sc->default_texture), "resources/default_texture.bmp");
-	sc->second_texture = load_texture_file(&(sc->second_texture), "resources/cat_texture.bmp");
+	sc->second_texture = load_texture_file(&(sc->second_texture), "resources/cat_texture2.bmp");
     return ;
 }
 
@@ -46,8 +46,8 @@ t_bmp_texture	load_texture_file(t_bmp_texture *texture, char *path)
 		exit (-1);
 	}
 
-	printf("default_texture infos:\nimage_size: %d \nwidth: %d \nheight: %d\n",
-		texture->image_size, texture->width, texture->height);
+	//printf("default_texture infos:\nimage_size: %d \nwidth: %d \nheight: %d\n",
+	//	texture->image_size, texture->width, texture->height);
 
 	// Create a buffer
 	texture->data = (unsigned char *)malloc(sizeof(unsigned char) * texture->image_size);
