@@ -291,6 +291,9 @@ void								dictionnary_comparison(t_scop *sc);
 void								data_init(t_scop *sc);
 
 void								count_values(t_scop *sc);
+void								count_face_values(t_scop *sc, t_token *token);
+void								print_obj_value_numbers(t_scop *sc);
+
 void								get_values(t_scop *sc);
 void								fill_vertex(t_scop *sc, t_token *token);
 void								fill_tex_coord(t_scop *sc, t_token *token);
@@ -317,6 +320,8 @@ void								generate_uvs(t_scop *sc);
 void								generate_transition_points(t_scop *sc);
 
 void								allocate_variables(t_scop *sc);
+void								allocate_variables_2(t_scop *sc);
+void								error_allocation(char *msg_string);
 void								deallocate_variables(t_scop *sc);
 
 // matrix handling
@@ -378,7 +383,7 @@ t_vec3								vec_cross(t_vec3 v1, t_vec3 v2);
 float								vec_magnitude(t_vec3 v);
 float								vec_dot_product(t_vec3 v1, t_vec3 v2);
 t_color								create_color(float r, float g, float b, float a);
-t_color								set_color(t_color c, float r, float g, float b, float a);
+t_color								set_color(float r, float g, float b, float a);
 float								set_gray_level(float color);
 
 #endif

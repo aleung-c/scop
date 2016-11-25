@@ -23,8 +23,10 @@ t_color		create_color(float r, float g, float b, float a)
 	return (ret);
 }
 
-t_color		set_color(t_color c, float r, float g, float b, float a)
+t_color		set_color(float r, float g, float b, float a)
 {
+	t_color c;
+
 	c.r = r;
 	c.g = g;
 	c.b = b;

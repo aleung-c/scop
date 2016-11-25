@@ -14,53 +14,47 @@
 
 void		allocate_variables(t_scop *sc)
 {
-	sc->total_faces = (sc->nb_faces_3 + (sc->nb_faces_4 * 2) + (sc->nb_indices_more));
-	if (!(sc->obj_vertices = (float *)malloc(sizeof(float) * sc->nb_vertices * 4))) // v
-	{
-		ft_putendl("vertices allocation failed.");
-		exit (-1);
-	}
-	if (!(sc->face_indices = (unsigned int *)malloc(sc->total_faces * 3 * sizeof(GL_UNSIGNED_INT)))) // indices
-	{
-		ft_putendl("faces - indices allocation failed.");
-		exit (-1);
-	}
-	if (!(sc->obj_normals = (float *)malloc(sizeof(float) * (sc->nb_normals_vertices) * 3))) // vn
-	{
-		ft_putendl("normal values allocation failed.");
-		exit (-1);
-	}
-	if (!(sc->faces_normals = (float *)malloc(sizeof(float) * ((sc->total_faces * 3) * 3) * 3))) // for each face
-	{
-		ft_putendl("faces normals allocation failed.");
-		exit (-1);
-	}
-	if (!(sc->faces_vertices = (float *)malloc(sizeof(float) * (sc->total_faces * 3) * 4))) // for each face
-	{
-		ft_putendl("faces vertices allocation failed.");
-		exit (-1);
-	}
-	if (!(sc->obj_tex_coords = (float *)malloc(sizeof(float) * sc->nb_texture_vertices * 2))) // vt
-	{
-		ft_putendl("vt values allocation failed.");
-		exit (-1);
-	}
-	if (!(sc->faces_uv = (float *)malloc(sizeof(float) * (sc->total_faces * 3) * 2))) // for each face
-	{
-		ft_putendl("faces uv allocation failed.");
-		exit (-1);
-	}
-	if (!(sc->vertex_color_values = (float *)malloc(sizeof(float) * (sc->total_faces * 3) * 3))) // for each face
-	{
-		ft_putendl("color buffer allocation failed.");
-		exit (-1);
-	}
-	if (!(sc->transition_points = (int *)malloc((sc->total_faces * 3) * sizeof(int)))) // for transition.
-	{
-		ft_putendl("transition_flags allocation failed.");
-		exit (-1);
-	}
+	sc->total_faces = (sc->nb_faces_3 + (sc->nb_faces_4 * 2)
+		+ (sc->nb_indices_more));
+	if (!(sc->obj_vertices = (float *)malloc(sizeof(float) * sc->nb_vertices
+		* 4)))
+		error_allocation("vertices allocation failed.");
+	if (!(sc->face_indices = (unsigned int *)malloc(sizeof(GL_UNSIGNED_INT)
+		* sc->total_faces * 3)))
+		error_allocation("faces - indices allocation failed.");
+	if (!(sc->obj_normals = (float *)malloc(sizeof(float)
+		* (sc->nb_normals_vertices) * 3)))
+		error_allocation("normal values allocation failed.");
+	if (!(sc->faces_normals = (float *)malloc(sizeof(float)
+		* ((sc->total_faces * 3) * 3) * 3)))
+		error_allocation("faces normals allocation failed.");
+	allocate_variables_2(sc);
+}
+
+void		allocate_variables_2(t_scop *sc)
+{
+	if (!(sc->faces_vertices = (float *)malloc(sizeof(float)
+		* (sc->total_faces * 3) * 4)))
+		error_allocation("faces vertices allocation failed.");
+	if (!(sc->obj_tex_coords = (float *)malloc(sizeof(float)
+		* sc->nb_texture_vertices * 2)))
+		error_allocation("vt values allocation failed.");
+	if (!(sc->faces_uv = (float *)malloc(sizeof(float)
+		* (sc->total_faces * 3) * 2)))
+		error_allocation("faces uv allocation failed.");
+	if (!(sc->vertex_color_values = (float *)malloc(sizeof(float)
+		* (sc->total_faces * 3) * 3)))
+		error_allocation("color buffer allocation failed.");
+	if (!(sc->transition_points = (int *)malloc(sizeof(int)
+		* (sc->total_faces * 3))))
+		error_allocation("transition_flags allocation failed.");
 	ft_putendl("- obj file variables allocated.");
+}
+
+void		error_allocation(char *msg_string)
+{
+	ft_putendl(msg_string);
+	exit(-1);
 }
 
 void		deallocate_variables(t_scop *sc)
@@ -85,5 +79,5 @@ void		deallocate_variables(t_scop *sc)
 		free(tmp);
 		sc->obj_token_list = sc->obj_token_list->next;
 	}
-	exit (0);
+	exit(0);
 }

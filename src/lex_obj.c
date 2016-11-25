@@ -47,7 +47,7 @@ void set_token_type(t_token *cur_token, char *token_str)
 		//printf("match num val\n");
 		cur_token->token_type = numeric_value;
 	}
-	else if (regex_match(token_str, "^[a-zA-Z0-9_./]+$"))
+	else if (regex_match(token_str, "^[a-zA-Z0-9_./-]+$"))
 	{
 		cur_token->token_type = word;
 	}

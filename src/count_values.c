@@ -12,12 +12,10 @@
 
 #include "../includes/scop.h"
 
-void count_values(t_scop *sc)
+void	count_values(t_scop *sc)
 {
 	t_token		*token;
-	int			inline_i;
 
-	inline_i = 0;
 	token = sc->obj_token_list;
 	while (token)
 	{
@@ -33,39 +31,39 @@ void count_values(t_scop *sc)
 				sc->nb_parameter_space_vertices++;
 			else if (strcmp(token->value, "f") == 0)
 			{
-
-				inline_i = 0;
-				sc->inline_token = token->next;
-				while (sc->inline_token && sc->inline_token->line_number == token->line_number)
-				{
-					inline_i++;
-					sc->inline_token = sc->inline_token->next;
-				}
-				if (inline_i == 3)
-					sc->nb_faces_3++;
-				else if (inline_i == 4)
-					sc->nb_faces_4++;
-				else if (inline_i > 4)
-				{
-					// //debug
-					// sc->inline_token = token->next;
-					// while (sc->inline_token && sc->inline_token->line_number == token->line_number)
-					// {
-					// 	printf("inline_token = -%s-\n", sc->inline_token->value);
-					// 	inline_i++;
-					// 	sc->inline_token = sc->inline_token->next;
-					// 	sleep(1);
-					// }
-					// printf("\n");
-					// // debug
-					
-					sc->nb_faces_more += 1;
-					sc->nb_indices_more += inline_i;
-				}
+				count_face_values(sc, token);
 			}
 		}
 		token = token->next;
 	}
+	print_obj_value_numbers(sc);
+}
+
+void	count_face_values(t_scop *sc, t_token *token)
+{
+	int			inline_i;
+
+	inline_i = 0;
+	sc->inline_token = token->next;
+	while (sc->inline_token && sc->inline_token->line_number
+		== token->line_number)
+	{
+		inline_i++;
+		sc->inline_token = sc->inline_token->next;
+	}
+	if (inline_i == 3)
+		sc->nb_faces_3++;
+	else if (inline_i == 4)
+		sc->nb_faces_4++;
+	else if (inline_i > 4)
+	{
+		sc->nb_faces_more += 1;
+		sc->nb_indices_more += inline_i;
+	}
+}
+
+void	print_obj_value_numbers(t_scop *sc)
+{
 	ft_putstr(KGRN "Object file datas:" KRESET);
 	ft_putchar('\n');
 	printf("Nb of v  = %lu\n", sc->nb_vertices);
