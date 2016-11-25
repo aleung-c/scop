@@ -45,6 +45,7 @@ int get_obj(t_scop *sc, char *arg)
 			buf = NULL;
 			line_number++;
 		}
+		free(buf);
 		// sc->file_str = ret_str;
 		fclose(fp);
 		//  Print file content;

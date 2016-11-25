@@ -52,7 +52,7 @@ LIB = ./libft/
 GL = -framework OpenGL
 GLFW = -framework Cocoa -framework CoreVideo -framework IOKit -framework GLUT -L./glfw-3.2.1/src -lglfw3
 
-SDL2 = -framework OpenGL -I/Library/Frameworks/SDL2.framework/Headers -framework SDL2 -framework AppKit
+#SDL2 = -framework OpenGL -I/Library/Frameworks/SDL2.framework/Headers -framework SDL2 -framework AppKit
 
 CC = gcc -g -O2 -Wall -Werror -Wextra
 #-march=native
