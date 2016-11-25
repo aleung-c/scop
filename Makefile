@@ -19,13 +19,16 @@ src/data_init.c \
 src/get_obj.c \
 src/count_values.c \
 src/parse_obj.c \
+src/parser_utils.c \
 src/lex_obj.c \
 src/dictionnary.c \
 src/get_values.c \
+src/bounding_box.c \
 src/matrix_identity.c \
 src/matrix_translation.c \
 src/matrix_scaling.c \
 src/matrix_rotation.c \
+src/matrix_rotation_2.c \
 src/matrix_view.c \
 src/matrix_projection.c \
 src/shader_handling.c \
@@ -33,13 +36,20 @@ src/vector_utils.c \
 src/load_textures.c \
 src/color.c \
 src/fill_values.c \
+src/fill_faces.c \
+src/fill_uv.c \
 src/set_colors.c \
+src/opengl_init.c \
 src/opengl_set_buffers.c \
 src/opengl_set_matrices.c \
 src/opengl_load_shaders.c \
 src/opengl_load_textures.c \
 src/opengl_drawing.c \
+src/key_handling.c \
+src/key_handling_2.c \
 src/events.c \
+src/events_rotations.c \
+src/events_transition.c \
 src/generate_uvs.c \
 src/generate_transition_points.c \
 src/allocate_variables.c

@@ -23,6 +23,8 @@
 # include <ctype.h>
 # include <regex.h>
 # include <math.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 // Linking SDL2
 //# include <SDL2/SDL.h>
@@ -78,8 +80,7 @@ typedef struct						s_token
 	char							*value;
 	char							*value_pointer; // maintaining ptr to be freed;
 	struct s_token					*next;
-	
-}									t_token;
+	}								t_token;
 
 typedef struct						s_dictionnary_word
 {
@@ -96,13 +97,12 @@ typedef	struct						s_vec3
 
 typedef struct						s_bmp_texture
 {
-	// Data read from the header of the BMP file
-	unsigned char					header[54]; // Each BMP file begins by a 54-bytes header
-	unsigned int					data_pos;     // Position in the file where the actual data begins
+	unsigned char					header[54];
+	unsigned int					data_pos;
 	unsigned int					width;
 	unsigned int					height;
-	unsigned int					image_size;   // = width*height*3
-	// Actual RGB data
+	unsigned int					image_size;
+
 	unsigned char					*data;
 }									t_bmp_texture;
 
@@ -117,22 +117,17 @@ typedef struct						s_color
 typedef struct						s_scop
 {
 	GLFWwindow						*window;
-	//SDL_Window					*window;
-	//SDL_GLContext					*main_context;
-	//SDL_Renderer					*renderer;
 
-	// File Lexer / parser
 	FILE							*fp;
 	t_token							*obj_token_list;
 	t_token							*tmp;
 
-	// file parsing datas
 	t_dictionnary_word				*word_dictionnary_list;
-	unsigned long int				nb_vertices; 					// v
-	unsigned long int				nb_texture_vertices;			// vt
-	unsigned long int				nb_normals_vertices;			// vn
-	unsigned long int				nb_parameter_space_vertices;	// vp
-	unsigned long int				nb_faces_3;						// f
+	unsigned long int				nb_vertices;
+	unsigned long int				nb_texture_vertices;
+	unsigned long int				nb_normals_vertices;
+	unsigned long int				nb_parameter_space_vertices;
+	unsigned long int				nb_faces_3;
 	unsigned long int				nb_faces_4;
 	unsigned long int				nb_faces_more;
 	unsigned long int				nb_indices_more;
@@ -150,26 +145,26 @@ typedef struct						s_scop
 	float							*obj_vertices;
 	int								itmp;
 
-	float							*faces_vertices; // for rough faces.
+	float							*faces_vertices;
 	int								faces_vertices_itmp;
 
 	unsigned int					*face_indices;
 	int								indices_itmp;
 
-	float							*obj_normals; // vn -> just the stocked values.
+	float							*obj_normals;
 	int								normals_itmp;
 
-	float							*faces_normals; // for each face(3 vertices) -> 3 float ordered.
+	float							*faces_normals;
 	int								face_normals_itmp;
 
 
-	float							*obj_tex_coords; // vt
+	float							*obj_tex_coords;
 	int								tex_coord_itmp;
 
-	float							*faces_uv; // uv for faces. to push some textures.
+	float							*faces_uv;
 	int								faces_uv_itmp;
 
-	float							*vertex_color_values; // for faces of diff colors.
+	float							*vertex_color_values;
 	int								vcolor_itmp;
 
 	int								*transition_points;
@@ -181,18 +176,16 @@ typedef struct						s_scop
 
 	GLuint							main_shader_programme;
 
-	// buffer references;
-	GLuint							vao; // vertex array object
-	GLuint							vbo; // vertex buffer object
-	GLuint							nbo; // normals buffer object
-	GLuint							cbo; // color buffer object
-	GLuint							ubo; // uv buffer object
-	GLuint							tbo; // transition flags buffer object
+	GLuint							vao;
+	GLuint							vbo;
+	GLuint							nbo;
+	GLuint							cbo;
+	GLuint							ubo;
+	GLuint							tbo;
 
-	GLuint							ebo; // element buffer objects -> indices.
-	GLuint							fvbo; // face vertices buffer.
+	GLuint							ebo;
+	GLuint							fvbo;
 
-	// matrix handling
 	float							matrix_identity[4][4];
 	float							matrix_translation[4][4];
 	float							matrix_scaling[4][4];
@@ -207,11 +200,9 @@ typedef struct						s_scop
 	float							matrix_perspective_projection[4][4];
 	float							matrix_orthographic_projection[4][4];
 
-	// stocking shaders
 	char							*vertex_shader_1;
 	char							*fragment_shader_1;
 
-	// scene settings
 	t_vec3							camera_pos;
 	t_vec3							camera_lookat;
 
@@ -232,7 +223,6 @@ typedef struct						s_scop
 
 	float							i_axis;
 
-	// events
 	int								escape_pressed;
 
 	int								on_standby;
@@ -250,11 +240,14 @@ typedef struct						s_scop
 	int 							is_rotating_x;
 	int 							is_rotating_z;
 
+	int								has_stepped_back;
+
 }									t_scop;
 
 /*
 **	global access for GLFW.
 */
+
 t_scop								*g_global_sc;
 
 /*
@@ -262,9 +255,13 @@ t_scop								*g_global_sc;
 */
 
 /*
-**	Get Object and parse it;
+**	Get Object and parse it -> Input.
 */
+
 int									get_obj(t_scop *sc, char *arg);
+int									is_directory(const char *path);
+
+void								process_opened_file(t_scop *sc, FILE *fp);
 
 void								lex_obj_line(t_scop *sc, char *line, int line_number);
 void								set_token_type(t_token *cur_token, char *token_str);
@@ -275,7 +272,6 @@ int									regex_match(char *string_to_search, char *regex_str);
 void								print_tokens(t_scop *sc);
 void								print_parser_error(t_token *token, char *error_string);
 
-
 void								init_dictionnaries(t_scop *sc);
 void								add_word_to_dictionnary(t_scop *sc, char *word);
 int									is_word_in_dictionnary(t_scop *sc, char *word);
@@ -284,11 +280,21 @@ void								parse_obj(t_scop *sc);
 int									check_tokens(t_scop *sc);
 void								change_token_indice_type(t_scop *sc);
 
-// token steps
 void								check_token_order(t_scop *sc);
 void								dictionnary_comparison(t_scop *sc);
 
+/*
+**	Data initiatlization
+*/
+
 void								data_init(t_scop *sc);
+void								init_obj_value_counters(t_scop *sc);
+void								init_simple_counters(t_scop *sc);
+void								init_scene(t_scop *sc);
+
+/*
+**	obj value filling
+*/
 
 void								count_values(t_scop *sc);
 void								count_face_values(t_scop *sc, t_token *token);
@@ -304,11 +310,17 @@ void								fill_face4(t_scop *sc, t_token *token);
 void								fill_face_more(t_scop *sc, t_token *token);
 
 void								fill_face_split_indice(t_scop *sc, t_token *inline_token);
+void								fill_face_indice_vertex(t_scop *sc, char *splitted_indice);
 void								fill_face_vertices(t_scop *sc, unsigned int indice);
 
 
 void								add_face_normal_from_indice(t_scop *sc, char *splitted_indice);
+void								add_one_face_normal_from_indice(t_scop *sc, int indice_val);
 void								add_face_uv_from_indice(t_scop *sc, char *splitted_indice);
+
+/*
+**	obj value to generate
+*/
 
 void								set_bounding_box_limits(t_scop *sc);
 void								set_bounding_box_center(t_scop *sc);
@@ -317,22 +329,28 @@ void								set_model_colors(t_scop *sc);
 void								add_one_face_color(t_scop *sc, float cur_color);
 
 void								generate_uvs(t_scop *sc);
+void								add_one_uv(t_scop *sc, float u, float v);
 void								generate_transition_points(t_scop *sc);
+
+/*
+**	programm memory allocations
+*/
 
 void								allocate_variables(t_scop *sc);
 void								allocate_variables_2(t_scop *sc);
 void								error_allocation(char *msg_string);
 void								deallocate_variables(t_scop *sc);
 
-// matrix handling
-//	model matrices
+/*
+**	Matrice initialization.
+*/
+
 void								init_identity_matrix(t_scop *sc);
 void								init_translation_matrix(t_scop *sc);
 void								set_translation_matrix(t_scop *sc, float x, float y, float z);
 void								init_scaling_matrix(t_scop *sc);
 void								set_scaling_matrix(t_scop *sc, float scale);
 
-//	model rotation matrices
 void								init_x_rotation_matrix(t_scop *sc);
 void								init_y_rotation_matrix(t_scop *sc);
 void								init_z_rotation_matrix(t_scop *sc);
@@ -341,40 +359,81 @@ void								set_x_rotation_matrix(t_scop *sc, float rot);
 void								set_y_rotation_matrix(t_scop *sc, float rot);
 void								set_z_rotation_matrix(t_scop *sc, float rot);
 
-//	view matrices
 void								init_view_orientation_matrix(t_scop *sc);
 void								init_view_translation_matrix(t_scop *sc);
+void								init_view_orientation_matrix_part2(t_scop *sc, t_vec3 xaxis,
+										t_vec3 yaxis, t_vec3 zaxis);
 
-// projection matrices
 void								init_perspective_projection_matrix(t_scop *sc);
+void								perspective_projection_matrix_part1(t_scop *sc);
+
+/*
+**	Texture handling.
+*/
 
 void								load_textures(t_scop *sc);
 t_bmp_texture						load_texture_file(t_bmp_texture *texture, char *path);
+void								check_bmp_format(t_bmp_texture *texture, FILE *file);
 
 /*
 **	Displaying the object -> glfw and open gl.
 */
 
 char								*get_file_content(char *file_path);
+char								*process_shader_opened_file(FILE *fp);
 
-int									initGLFW(t_scop *sc);
-int									initOpenGL(t_scop *sc);
+void								scop(t_scop *sc);
+
+int									init_glfw(t_scop *sc);
+int									init_opengl(t_scop *sc);
+void								check_opengl_errors(t_scop *sc);
+void								int_handler(int sig);
 
 void								opengl_set_buffers(t_scop *sc);
+void								opengl_set_gen_buffers(t_scop *sc);
+void								opengl_set_vertice_buffers(t_scop *sc);
+void								opengl_set_color_buffers(t_scop *sc);
 void								opengl_load_shaders(t_scop *sc);
+void								opengl_create_shader_programme(t_scop *sc, GLuint vs, GLuint fs);
 void								opengl_set_matrices(t_scop *sc);
-void								opengl_load_textures(t_scop *sc);
+void								opengl_set_model_matrices(t_scop *sc);
+void								opengl_set_view_matrices(t_scop *sc);
+void								opengl_set_projection_matrices(t_scop *sc);
 
+void								opengl_load_textures(t_scop *sc);
+void								opengl_load_default_tex(t_scop *sc);
+void								opengl_load_second_tex(t_scop *sc);
 
 void								opengl_drawing(t_scop *sc);
+void								opengl_drawing_enable_arrays(void);
+void								opengl_drawing_set_zero_attribute(t_scop *sc);
+void								opengl_drawing_disable_arrays(void);
+
+/*
+**	Events and key handling.
+*/
 
 void								event_init(t_scop *sc);
 void								event_process(t_scop *sc);
+
+void								events_rotations(t_scop *sc);
+void								modify_uniform_matrice(t_scop *sc, float *matrice, char *uniform_string);
+
+void								events_transition(t_scop *sc);
+void								transition_n_faces(t_scop *sc, int n);
 void								transition_one_face(t_scop *sc);
 
+void								toggle_rotation(t_scop *sc, int key, int action);
+void								toggle_rotation_change_1(t_scop *sc, int key, int action);
+void								toggle_rotation_change_2(t_scop *sc, int key, int action);
+void								toggle_transition_and_tswitch(t_scop *sc, int key, int action);
+void								set_zoom_level(t_scop *sc, int key, int action);
+void								apply_step_back(t_scop *sc, int key, int action);
+
 /*
-**	utils
+**	utils functions.
 */
+
 void								set_vec(t_vec3 *v, float x, float y, float z);
 t_vec3								normalize(t_vec3 v);
 float								norme(t_vec3 v);

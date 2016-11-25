@@ -39,8 +39,6 @@ void		add_word_to_dictionnary(t_scop *sc, char *word)
 	new_word->string[strlen(word)] = '\0';
 	new_word->string = strcpy(new_word->string, word);
 	new_word->next = NULL;
-
-
 	if (sc->word_dictionnary_list == NULL)
 	{
 		sc->word_dictionnary_list = new_word;
@@ -50,21 +48,19 @@ void		add_word_to_dictionnary(t_scop *sc, char *word)
 	{
 		tmp = sc->word_dictionnary_list;
 		while (tmp->next)
-		{
 			tmp = tmp->next;
-		}
 		tmp->next = new_word;
 	}
 }
 
-int		is_word_in_dictionnary(t_scop *sc, char *word)
+int			is_word_in_dictionnary(t_scop *sc, char *word)
 {
 	t_dictionnary_word	*tmp;
-	
+
 	if (sc->word_dictionnary_list == NULL)
 	{
 		printf("Error: dictionnary empty\n");
-		exit (-1);
+		exit(-1);
 	}
 	else
 	{
@@ -72,11 +68,9 @@ int		is_word_in_dictionnary(t_scop *sc, char *word)
 		while (tmp)
 		{
 			if (strcmp(tmp->string, word) == 0)
-			{
-				return (1); // word is in dico
-			}
+				return (1);
 			tmp = tmp->next;
 		}
 	}
-	return (0); // word is NOT in dico.
+	return (0);
 }

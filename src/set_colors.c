@@ -26,7 +26,7 @@ void		set_model_colors(t_scop *sc)
 		cur_color = set_gray_level(cur_color + 0.3);
 		add_one_face_color(sc, cur_color);
 		add_one_face_color(sc, cur_color);
-		add_one_face_color(sc, cur_color);		
+		add_one_face_color(sc, cur_color);
 		i += 3;
 	}
 }

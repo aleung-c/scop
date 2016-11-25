@@ -12,7 +12,7 @@
 
 #include "../includes/scop.h"
 
-void generate_uvs(t_scop *sc)
+void	generate_uvs(t_scop *sc)
 {
 	unsigned int		*tmp;
 	unsigned int		total_indices;
@@ -23,23 +23,18 @@ void generate_uvs(t_scop *sc)
 	total_indices = (sc->total_faces * 3);
 	while (i != total_indices)
 	{
-		sc->faces_uv[sc->faces_uv_itmp] = 1.0;
-		sc->faces_uv_itmp++;
-		sc->faces_uv[sc->faces_uv_itmp] = 0.0;
-		sc->faces_uv_itmp++;
-
-		sc->faces_uv[sc->faces_uv_itmp] = 0.0;
-		sc->faces_uv_itmp++;
-		sc->faces_uv[sc->faces_uv_itmp] = 0.0;
-		sc->faces_uv_itmp++;
-
-		sc->faces_uv[sc->faces_uv_itmp] = 0.0;
-		sc->faces_uv_itmp++;
-		sc->faces_uv[sc->faces_uv_itmp] = 1.0;
-		sc->faces_uv_itmp++;
-
+		add_one_uv(sc, 1.0, 0.0);
+		add_one_uv(sc, 0.0, 0.0);
+		add_one_uv(sc, 0.0, 1.0);
 		i += 3;
 		tmp += 3;
 	}
+}
 
+void	add_one_uv(t_scop *sc, float u, float v)
+{
+	sc->faces_uv[sc->faces_uv_itmp] = u;
+	sc->faces_uv_itmp++;
+	sc->faces_uv[sc->faces_uv_itmp] = v;
+	sc->faces_uv_itmp++;
 }

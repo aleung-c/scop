@@ -43,38 +43,15 @@ t_vec3					vec_sub(t_vec3 v1, t_vec3 v2)
 	ret.x = v1.x - v2.x;
 	ret.y = v1.y - v2.y;
 	ret.z = v1.z - v2.z;
-
 	return (ret);
 }
 
-// checked -> correct;
 t_vec3					vec_cross(t_vec3 v1, t_vec3 v2)
 {
 	t_vec3	ret;
 
-	/*ret[0] = a[1]*b[2]-a[2]*b[1];
-	ret[1] = a[2]*b[0]-a[0]*b[2];
-	ret[2] = a[0]*b[1]-a[1]*b[0];*/
-
 	ret.x = v1.y * v2.z - v1.z * v2.y;
 	ret.y = v1.z * v2.x - v1.x * v2.z;
 	ret.z = v1.x * v2.y - v1.y * v2.x;
-	return (ret);
-
-}
-
-float		vec_magnitude(t_vec3 v)
-{
-	float			ret;
-
-	ret = sqrt(pow(v.x, 2) + pow(v.y, 2) + pow(v.z, 2));
-	return (ret);
-}
-
-float		vec_dot_product(t_vec3 v1, t_vec3 v2)
-{
-	float	ret;
-
-	ret = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 	return (ret);
 }

@@ -76,8 +76,9 @@ void		deallocate_variables(t_scop *sc)
 	{
 		free(sc->obj_token_list->value_pointer);
 		tmp = sc->obj_token_list;
+		if (sc->obj_token_list)
+			sc->obj_token_list = sc->obj_token_list->next;
 		free(tmp);
-		sc->obj_token_list = sc->obj_token_list->next;
 	}
 	exit(0);
 }

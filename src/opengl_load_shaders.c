@@ -10,30 +10,32 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "../includes/scop.h"
 
-void opengl_load_shaders(t_scop *sc)
+void	opengl_load_shaders(t_scop *sc)
 {
-	// -------------------------------------------------------------------------- //
-	//	Shaders																	  //
-	// -------------------------------------------------------------------------- //
-	// Go get Position shader
+	GLuint	vs;
+	GLuint	fs;
+
 	sc->vertex_shader_1 = get_file_content("./shaders/vshader_1.vs");
 	sc->fragment_shader_1 = get_file_content("./shaders/fshader_1.fs");
+	vs = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vs, 1, (const char *const *)&sc->vertex_shader_1, NULL);
+	glCompileShader(vs);
+	fs = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fs, 1, (const char *const *)&sc->fragment_shader_1, NULL);
+	glCompileShader(fs);
+	opengl_create_shader_programme(sc, vs, fs);
+}
 
-	// Create shader programme
-	GLuint vs = glCreateShader (GL_VERTEX_SHADER);
-	glShaderSource (vs, 1, (const char * const *)&sc->vertex_shader_1, NULL);
-	glCompileShader (vs);
-	GLuint fs = glCreateShader (GL_FRAGMENT_SHADER);
-	glShaderSource (fs, 1, (const char * const *)&sc->fragment_shader_1, NULL);
-	glCompileShader (fs);
+void	opengl_create_shader_programme(t_scop *sc, GLuint vs, GLuint fs)
+{
+	GLuint	shader_programme;
 
-	GLuint shader_programme = glCreateProgram ();
-	glAttachShader (shader_programme, fs);
-	glAttachShader (shader_programme, vs);
-	glLinkProgram (shader_programme);
+	shader_programme = glCreateProgram();
+	glAttachShader(shader_programme, fs);
+	glAttachShader(shader_programme, vs);
+	glLinkProgram(shader_programme);
 	glUseProgram(shader_programme);
 	sc->main_shader_programme = shader_programme;
 }

@@ -15,27 +15,34 @@
 char		*get_file_content(char *file_path)
 {
 	FILE *fp;
-	long lsize;
-	char *buffer;
 
-	fp = fopen(file_path, "rb" );
+	fp = fopen(file_path, "rb");
 	if (!fp)
 	{
 		printf("Error opening file\n");
 		exit(-1);
 	}
+	else
+	{
+		return (process_shader_opened_file(fp));
+	}
+	return (NULL);
+}
+
+char		*process_shader_opened_file(FILE *fp)
+{
+	long		lsize;
+	char		*buffer;
 
 	fseek(fp, 0L, SEEK_END);
 	lsize = ftell(fp);
 	rewind(fp);
-
 	buffer = (char *)malloc(sizeof(char) * lsize);
 	if (!buffer)
 	{
 		printf("Error allocating vertex shader memory\n");
 		exit(-1);
 	}
-
 	if (fread(buffer, lsize, 1, fp) != 1)
 	{
 		fclose(fp);

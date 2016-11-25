@@ -14,7 +14,19 @@
 
 void		data_init(t_scop *sc)
 {
-	// obj value counters.
+	init_obj_value_counters(sc);
+	init_simple_counters(sc);
+	init_translation_matrix(sc);
+	init_scaling_matrix(sc);
+	init_identity_matrix(sc);
+	init_x_rotation_matrix(sc);
+	init_y_rotation_matrix(sc);
+	init_z_rotation_matrix(sc);
+	init_scene(sc);
+}
+
+void		init_obj_value_counters(t_scop *sc)
+{
 	sc->nb_vertices = 0;
 	sc->nb_texture_vertices = 0;
 	sc->nb_normals_vertices = 0;
@@ -26,8 +38,10 @@ void		data_init(t_scop *sc)
 	sc->nb_obj = 0;
 	sc->nb_groups = 0;
 	sc->nb_materials = 0;
+}
 
-	// counters
+void		init_simple_counters(t_scop *sc)
+{
 	sc->itmp = 0;
 	sc->faces_vertices_itmp = 0;
 	sc->indices_itmp = 0;
@@ -36,16 +50,10 @@ void		data_init(t_scop *sc)
 	sc->faces_uv_itmp = 0;
 	sc->vcolor_itmp = 0;
 	sc->tpoints_i = 0;
+}
 
-	// matrices.
-	init_translation_matrix(sc);
-	init_scaling_matrix(sc);
-	init_identity_matrix(sc);
-	init_x_rotation_matrix(sc);
-	init_y_rotation_matrix(sc);
-	init_z_rotation_matrix(sc);
-
-	// scene settings
+void		init_scene(t_scop *sc)
+{
 	sc->zoom_level = 0.2;
 	sc->camera_pos.x = 0.0;
 	sc->camera_pos.y = 0.0;
@@ -58,7 +66,7 @@ void		data_init(t_scop *sc)
 	sc->camera_near = 0.1;
 	sc->camera_far = 100.0;
 	sc->camera_fov = 60.0;
-	sc->camera_aspect = 1.33; // 4/3, 16/9, etc 1 = 4/4
+	sc->camera_aspect = 1.33;
 	init_perspective_projection_matrix(sc);
 	set_vec(&sc->bounding_box_center, 0.0, 0.0, 0.0);
 	set_vec(&sc->bounding_box_max, 0.0, 0.0, 0.0);
