@@ -24,7 +24,7 @@ layout(location = 5) in		int transition_flag;
 
 out vec4					vertex_position;
 out vec3					vertex_normal;
-flat out vec3					color;
+flat out vec3				color;
 out vec2					texture_coordinates;
 flat out int				t_flag; // "flat" means not interpolated.
 
