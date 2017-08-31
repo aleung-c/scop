@@ -19,7 +19,7 @@
 # include <stdlib.h>
 # include "X.h"
 //# include <X11/Xlib.h>
-# include <mlx.h>
+//# include <mlx.h>
 # include <ctype.h>
 # include <regex.h>
 # include <math.h>
