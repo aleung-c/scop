@@ -8,6 +8,8 @@ and makes it rotate.
 The idea was to discover the way OpenGL works, and more precisely, how modern OpenGL works.
 This is why this project is made under OpenGL 4, using shaders to display the models'
 vertices and faces.
+This was also the perfect project to understand and practice on the difference between raytracing(previously studied)
+and rasterization.
 
 Then we apply some simple color or texturing, and that gives us a small .obj parser displayer.
 
